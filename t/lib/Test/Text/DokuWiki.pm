@@ -33,9 +33,11 @@ sub _parse_tree {
 
         if($level < $current_level) {
             pop @indent_stack;
+            pop @node_stack;
             if($level != $indent_stack[-1]) {
                 return;
             }
+            push @{ $node_stack[-1]->{'children'} }, $node;
         } elsif($level == $current_level) {
             push @{ $current_node->{'children'} }, $node;
         } else { # $level > $current_level

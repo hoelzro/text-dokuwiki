@@ -1,0 +1,58 @@
+=pod
+
+=head1 NAME
+
+Text::DokuWiki
+
+=head1 VERSION
+
+version 0.01
+
+=head1 SYNOPSIS
+
+  use Text::DokuWiki;
+
+  my $doku = Text::DokuWiki->new;
+  my $doc  = $doku->parse($text);
+  say $doc->as_html;
+
+=head1 DESCRIPTION
+
+This module is a parser for the markup language that
+DokuWiki uses.
+
+=head1 METHODS
+
+=head2 Text::DokuWiki->new
+
+Creates a new DokuWiki syntax parser.
+
+=head2 $doku->parse($text)
+
+Parses C<$text> as a DokuWiki document and returns
+a L<Text::DokuWiki::Document> object.
+
+=head1 SEE ALSO
+
+L<http://dokuwiki.org>
+
+=head1 AUTHOR
+
+Rob Hoelz <rob@hoelz.ro>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Rob Hoelz.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=head1 BUGS
+
+Please report any bugs or feature requests on the bugtracker website
+https://github.com/hoelzro/text-dokuwiki/issues
+
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
+

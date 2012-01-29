@@ -32,6 +32,12 @@ Creates a new DokuWiki syntax parser.
 Parses C<$text> as a DokuWiki document and returns
 a L<Text::DokuWiki::Document> object.
 
+=head1 UNSUPPORTED SYNTAX
+
+The amount of syntax that we support in comparison
+to the official DokuWiki parser will grow over time.
+I don't know if we'll ever support PHP code blocks, though.
+
 =head1 SEE ALSO
 
 L<http://dokuwiki.org>

@@ -2,8 +2,12 @@
 package Text::DokuWiki;
 
 ## use critic (RequireUseStrict)
-use strict;
-use warnings;
+use Moose;
+
+use Text::DokuWiki::Document;
+use Text::DokuWiki::Element::Bold;
+use Text::DokuWiki::Element::Paragraph;
+use Text::DokuWiki::Element::Text;
 
 1;
 

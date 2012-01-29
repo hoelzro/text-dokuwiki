@@ -9,6 +9,9 @@ use Text::DokuWiki::Element::Bold;
 use Text::DokuWiki::Element::Paragraph;
 use Text::DokuWiki::Element::Text;
 
+sub parse {
+}
+
 1;
 
 __END__

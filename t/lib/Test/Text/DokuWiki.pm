@@ -60,7 +60,7 @@ sub _check_tree {
         my $expected_type = 'Text::DokuWiki::Element::' . $expected->{'type'};
 
         if($got_type ne $expected_type) {
-            return undef, 'This error message sucks';
+            return undef, "Type mismatch: $got_type vs $expected_type";
         }
     }
 
@@ -71,14 +71,17 @@ sub _check_tree {
     $expected_content = '' unless defined $expected_content;
 
     if($got_content ne $expected_content) {
-        return undef, 'This error message sucks!';
+        return undef, "Content mismatch:\ngot: $got_content\nexpected: $expected_content";
     }
 
     my $got_children      = $got->children;
     my $expected_children = $expected->{'children'};
 
     if(@$got_children != @$expected_children) {
-        return undef, 'This error message sucks!';
+        my $n_got      = @$got_children;
+        my $n_expected = @$expected_children;
+
+        return undef, "# children mismatch: $n_got vs $n_expected";
     }
 
     for(my $i = 0; $i < @$got_children; $i++) {

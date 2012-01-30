@@ -9,7 +9,21 @@ use Text::DokuWiki::Element::Bold;
 use Text::DokuWiki::Element::Paragraph;
 use Text::DokuWiki::Element::Text;
 
+has parser => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_parser',
+    init_arg => undef,
+);
+
+sub _build_parser {
+    my ( $self ) = @_;
+}
+
 sub parse {
+    my $doc = Text::DokuWiki::Document->new;
+
+    return $doc;
 }
 
 1;

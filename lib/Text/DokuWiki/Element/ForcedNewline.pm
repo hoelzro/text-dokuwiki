@@ -1,11 +1,11 @@
-package Text::DokuWiki::Element::Bold;
+package Text::DokuWiki::Element::ForcedNewline;
 
 use Moose;
 
 extends 'Text::DokuWiki::Element';
 
 sub _is_textual {
-    return 1;
+    return 0;
 }
 
 1;
@@ -19,3 +19,8 @@ __END__
 =head1 FUNCTIONS
 
 =cut
+
+
+
+
+

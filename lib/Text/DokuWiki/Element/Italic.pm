@@ -1,4 +1,4 @@
-package Text::DokuWiki::Element::Bold;
+package Text::DokuWiki::Element::Italic;
 
 use Moose;
 

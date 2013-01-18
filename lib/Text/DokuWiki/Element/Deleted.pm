@@ -1,4 +1,4 @@
-package Text::DokuWiki::Element::Bold;
+package Text::DokuWiki::Element::Deleted;
 
 use Moose;
 
@@ -19,3 +19,5 @@ __END__
 =head1 FUNCTIONS
 
 =cut
+
+

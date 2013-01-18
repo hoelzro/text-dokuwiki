@@ -1,4 +1,4 @@
-package Text::DokuWiki::Element::Bold;
+package Text::DokuWiki::Element::Superscript;
 
 use Moose;
 
@@ -19,3 +19,7 @@ __END__
 =head1 FUNCTIONS
 
 =cut
+
+
+
+

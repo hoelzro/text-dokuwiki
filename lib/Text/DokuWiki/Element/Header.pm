@@ -1,12 +1,8 @@
-package Text::DokuWiki::Element::Bold;
+package Text::DokuWiki::Element::Header;
 
 use Moose;
 
 extends 'Text::DokuWiki::Element';
-
-sub _is_textual {
-    return 1;
-}
 
 1;
 
@@ -19,3 +15,4 @@ __END__
 =head1 FUNCTIONS
 
 =cut
+

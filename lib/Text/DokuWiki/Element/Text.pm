@@ -4,6 +4,10 @@ use Moose;
 
 extends 'Text::DokuWiki::Element';
 
+sub _is_textual {
+    return 1;
+}
+
 1;
 
 __END__

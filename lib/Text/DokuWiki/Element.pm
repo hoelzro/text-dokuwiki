@@ -8,15 +8,33 @@ has children => (
     traits  => ['Array'],
     default => sub { [] },
     handles => {
-        add_child => 'push',
+        append_child => 'push',
     },
 );
 
+has parent => (
+    is       => 'ro',
+    #isa      => 'Text::DokuWiki::Element',
+    weak_ref => 1,
+    required => 1,
+);
+
+# XXX technically, only textual nodes have this
 has content => (
-    is      => 'ro',
+    is      => 'rw', # XXX does this need to be read-only?
     isa     => 'Str',
     default => '',
 );
+
+sub _append_content {
+    my ( $self, $text ) = @_;
+
+    $self->content($self->content . $text);
+}
+
+sub _is_textual {
+    return 0;
+}
 
 1;
 

@@ -192,7 +192,7 @@ sub parse {
 
 __END__
 
-# ABSTRACT:  A short description of Text::DokuWiki
+# ABSTRACT: A parser for DokuWiki markup language (https://www.dokuwiki.org/)
 
 =head1 SYNOPSIS
 
@@ -226,6 +226,16 @@ I don't know if we'll ever support PHP code blocks, though.
 
 =head1 SEE ALSO
 
+=over 4
+
+=item *
+
 L<http://dokuwiki.org>
+
+=item *
+
+L<http://dokuwiki.org/wiki:syntax>
+
+=back
 
 =cut

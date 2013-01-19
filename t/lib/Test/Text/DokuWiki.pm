@@ -64,16 +64,16 @@ sub _check_tree {
         if($got_type ne $expected_type) {
             return undef, "Type mismatch: $got_type vs $expected_type";
         }
-    }
 
-    my $got_content      = $got->content;
-    my $expected_content = $expected->{'content'};
+        my $got_content      = $got->content;
+        my $expected_content = $expected->{'content'};
 
-    $got_content      = '' unless defined $got_content;
-    $expected_content = '' unless defined $expected_content;
+        $got_content      = '' unless defined $got_content;
+        $expected_content = '' unless defined $expected_content;
 
-    if($got_content ne $expected_content) {
-        return undef, "Content mismatch:\ngot: $got_content\nexpected: $expected_content";
+        if($got_content ne $expected_content) {
+            return undef, "Content mismatch:\ngot: '$got_content'\nexpected: '$expected_content'";
+        }
     }
 
     my $got_children      = $got->children;

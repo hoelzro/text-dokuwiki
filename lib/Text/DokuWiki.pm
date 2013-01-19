@@ -51,6 +51,11 @@ has current_node => (
     },
 );
 
+has parser_rules => (
+    is      => 'ro',
+    default => sub { [] },
+);
+
 sub _append_child {
     my ( $self, $child, %params ) = @_;
 
@@ -121,6 +126,27 @@ sub _remove_pseudo_html_node {
     $self->current_node($current_node->parent);
 }
 
+sub _add_parser_rule {
+    my ( $self, %params ) = @_;
+
+    my %copy = %params;
+
+    my @required = qw{name pattern handler};
+
+    foreach my $param (@required) {
+        unless(exists $copy{$param}) {
+            croak "argument '$param' required";
+        }
+        delete $copy{$param};
+    }
+    my @remaining = keys %copy;
+    if(@remaining) {
+        croak "invalid argument '$remaining[0]' passed to _add_parser_rule";
+    }
+
+    push @{$self->parser_rules}, \%params;
+}
+
 sub parse {
     my ( $self, $text ) = @_;
 
@@ -138,7 +164,18 @@ sub parse {
     my $in_underlined_section;
     my $in_monospace_section;
 
+    TEXT_LOOP:
     while($text) {
+        foreach my $parser_rule (@{ $self->parser_rules }) {
+            my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
+
+            if($text =~ /\A$pattern/p) {
+                $handler->($self, ${^MATCH});
+                $text = ${^POSTMATCH};
+                next TEXT_LOOP;
+            }
+        }
+
         my $found_match = 1;
 
         # XXX use \G?

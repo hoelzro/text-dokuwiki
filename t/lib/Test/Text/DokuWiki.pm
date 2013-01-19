@@ -9,7 +9,7 @@ use Test::More;
 
 our @EXPORT = qw(test_doc);
 
-my $NODE_RE = qr/^(\s*)(\w+)\s*(?:'(.*)')?$/;
+my $NODE_RE = qr/^(\s*)(\w+)\s*(.*)?$/;
 
 sub _parse_tree {
     my ( $tree ) = @_;
@@ -25,7 +25,7 @@ sub _parse_tree {
         unless(( $indentation, $node_type, $content ) = $line =~ /$NODE_RE/) {
             return;
         }
-           $content       = '' unless defined $content;
+           $content       = defined($content) ? eval($content) : '';
         my $level         = length($indentation);
         my $node          = { type => $node_type, content => $content, children => [] };
         my $current_level = $indent_stack[-1];

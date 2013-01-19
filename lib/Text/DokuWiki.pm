@@ -175,6 +175,19 @@ sub _self_closing_element {
     };
 }
 
+sub _finish_paragraph {
+    my ( $self ) = @_;
+
+    while(!$self->current_node->isa('Text::DokuWiki::Document') &&
+          !$self->current_node->isa(ParagraphElement)) {
+
+        $self->_up;
+    }
+    if($self->current_node->isa(ParagraphElement)) {
+        $self->_up;
+    }
+}
+
 sub BUILD {
     my ( $self ) = @_;
 
@@ -214,6 +227,48 @@ sub BUILD {
         pattern => qr/''/,
         handler => $self->_self_closing_element(MonospaceElement),
     );
+
+    $self->_add_parser_rule(
+        name    => 'paragraph',
+        pattern => qr/\n\n/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_finish_paragraph;
+            $parser->_down(ParagraphElement);
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'forced_newline',
+        pattern => qr{\\\\[\s\n]},
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_pop_text_node;
+            $parser->_append_child(ForcedNewlineElement);
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'open_pseudo_html',
+        pattern => $OPEN_PSEUDO_HTML_RE,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_add_pseudo_html_node($+{'tag_name'});
+        },
+    );
+
+    $self->_add_parser_rule(
+        name => 'close_pseudo_html',
+        pattern => $CLOSE_PSEUDO_HTML_RE,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_remove_pseudo_html_node($+{'tag_name'});
+        },
+    );
 }
 
 sub parse {
@@ -239,35 +294,11 @@ sub parse {
             }
         }
 
-        my $found_match = 1;
-
-        if($text =~ /\A\n\n/p) {
-            while(!$self->current_node->isa('Text::DokuWiki::Document') &&
-                  !$self->current_node->isa(ParagraphElement)) {
-
-                $self->_up;
-            }
-            if($self->current_node->isa(ParagraphElement)) {
-                $self->_up;
-            }
-            $self->_down(ParagraphElement);
-        } elsif($text =~ m{\A\\\\[\s\n]}p) {
-            $self->_pop_text_node;
-            $self->_append_child(ForcedNewlineElement);
-        } elsif($text =~ /\A$OPEN_PSEUDO_HTML_RE/p) {
-            $self->_add_pseudo_html_node($+{'tag_name'});
-        } elsif($text =~ /\A$CLOSE_PSEUDO_HTML_RE/p) {
-            $self->_remove_pseudo_html_node($+{'tag_name'});
-        } elsif($text =~ /\A./sp) {
+        if($text =~ /\A./sp) {
             unless($self->current_node->_is_textual) {
                 $self->_down(TextElement);
             }
             $self->_append_content(${^MATCH});
-        } else {
-            $found_match = 0;
-        }
-
-        if($found_match) {
             $text = ${^POSTMATCH};
         } else {
             croak "Confused: '$text'";

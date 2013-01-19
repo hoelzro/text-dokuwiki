@@ -55,6 +55,8 @@ sub _parse_tree {
 sub _check_tree {
     my ( $got, $expected ) = @_;
 
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     unless($got->isa('Text::DokuWiki::Document')) {
         my $got_type      = ref($got);
         my $expected_type = 'Text::DokuWiki::Element::' . $expected->{'type'};

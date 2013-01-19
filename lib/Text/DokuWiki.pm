@@ -126,6 +126,8 @@ sub _remove_pseudo_html_node {
     $self->current_node($current_node->parent);
 }
 
+# XXX add ability to position rules before/after one another
+# XXX add ability to override rules
 sub _add_parser_rule {
     my ( $self, %params ) = @_;
 

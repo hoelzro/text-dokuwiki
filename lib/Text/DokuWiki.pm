@@ -161,6 +161,20 @@ sub _has_ancestor {
     return;
 }
 
+sub _self_closing_element {
+    my ( $self, $node_class ) = @_;
+
+    return sub {
+        my ( $parser ) = @_;
+
+        if($parser->_has_ancestor($node_class)) {
+            $parser->_up;
+        } else {
+            $parser->_down($node_class);
+        }
+    };
+}
+
 sub BUILD {
     my ( $self ) = @_;
 
@@ -180,29 +194,13 @@ sub BUILD {
     $self->_add_parser_rule(
         name    => 'bold',
         pattern => qr/[*][*]/,
-        handler => sub {
-            my ( $parser, $match ) = @_;
-
-            if($self->_has_ancestor(BoldElement)) {
-                $self->_up;
-            } else {
-                $self->_down(BoldElement);
-            }
-        },
+        handler => $self->_self_closing_element(BoldElement),
     );
 
     $self->_add_parser_rule(
         name    => 'italic',
         pattern => qr{//},
-        handler => sub {
-            my ( $parser, $match ) = @_;
-
-            if($self->_has_ancestor(ItalicElement)) {
-                $self->_up;
-            } else {
-                $self->_down(ItalicElement);
-            }
-        },
+        handler => $self->_self_closing_element(ItalicElement),
     );
 }
 

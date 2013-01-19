@@ -16,6 +16,7 @@ use aliased 'Text::DokuWiki::Element::EmailAddress'    => 'EmailAddressElement';
 use aliased 'Text::DokuWiki::Element::ExternalLinkURI' => 'ExternalLinkURIElement';
 use aliased 'Text::DokuWiki::Element::ForcedNewline'   => 'ForcedNewlineElement';
 use aliased 'Text::DokuWiki::Element::Header'          => 'HeaderElement';
+use aliased 'Text::DokuWiki::Element::InternalLink'    => 'InternalLinkElement';
 use aliased 'Text::DokuWiki::Element::Italic'          => 'ItalicElement';
 use aliased 'Text::DokuWiki::Element::Monospace'       => 'MonospaceElement';
 use aliased 'Text::DokuWiki::Element::Paragraph'       => 'ParagraphElement';
@@ -39,6 +40,23 @@ my $OPEN_PSEUDO_HTML_RE = qr{
 
 my $CLOSE_PSEUDO_HTML_RE = qr{
     </(?<tag_name>\w+)>
+}x;
+
+my $INTERNAL_LINK_RE = qr{
+    [[][[] # leading [[
+    (?<page_name>.*?)
+
+    (?:
+      [#]
+      (?<section_name>.*?)
+    )? # optional section name
+
+    (?:
+      [|]
+      (?<link_text>.*?)
+    )? # optional link text
+
+    []][]] # trailing ]]
 }x;
 
 my %PSEUDO_HTML_NODE_CLASSES = (
@@ -297,6 +315,22 @@ sub BUILD {
             $parser->_pop_text_node;
             $parser->_append_child(EmailAddressElement,
                 content => $+{'address'},
+            );
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'internal_link',
+        pattern => $INTERNAL_LINK_RE,
+        handler => sub {
+            my ( $parser, $match ) = @_;
+
+            # XXX this could actually also be an external link!
+            $parser->_pop_text_node;
+            $parser->_append_child(InternalLinkElement,
+                page_name    => $+{'page_name'},
+                section_name => $+{'section_name'},
+                link_text    => $+{'link_text'},
             );
         },
     );

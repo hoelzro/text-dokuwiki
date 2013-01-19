@@ -7,11 +7,12 @@ use Moose;
 use 5.010;
 
 use Carp qw(croak);
-use Regexp::Common qw(URI);
+use Regexp::Common qw(Email::Address URI);
 use Text::DokuWiki::Document;
 
 use aliased 'Text::DokuWiki::Element::Bold'            => 'BoldElement';
 use aliased 'Text::DokuWiki::Element::Deleted'         => 'DeletedElement';
+use aliased 'Text::DokuWiki::Element::EmailAddress'    => 'EmailAddressElement';
 use aliased 'Text::DokuWiki::Element::ExternalLinkURI' => 'ExternalLinkURIElement';
 use aliased 'Text::DokuWiki::Element::ForcedNewline'   => 'ForcedNewlineElement';
 use aliased 'Text::DokuWiki::Element::Header'          => 'HeaderElement';
@@ -283,6 +284,19 @@ sub BUILD {
             $parser->_pop_text_node;
             $parser->_append_child(ExternalLinkURIElement,
                 content => $match,
+            );
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'external_link_mail',
+        pattern => qr/<(?<address>$RE{Email}{Address})>/,
+        handler => sub {
+            my ( $parser, $match ) = @_;
+
+            $parser->_pop_text_node;
+            $parser->_append_child(EmailAddressElement,
+                content => $+{'address'},
             );
         },
     );

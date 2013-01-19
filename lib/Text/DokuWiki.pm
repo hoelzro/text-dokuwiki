@@ -155,6 +155,9 @@ sub _add_parser_rule {
     my %copy = %params;
 
     my @required = qw{name pattern handler};
+    my @optional = qw{before after};
+
+    delete @copy{@optional}; # we'll process these properly later
 
     foreach my $param (@required) {
         unless(exists $copy{$param}) {

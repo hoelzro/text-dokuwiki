@@ -284,6 +284,8 @@ sub parse {
 
     TEXT_LOOP:
     while($text) {
+        # XXX use \G?
+        # XXX compile each component regex into a single regex?
         foreach my $parser_rule (@{ $self->parser_rules }) {
             my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
 

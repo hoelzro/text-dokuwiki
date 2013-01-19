@@ -6,12 +6,14 @@ use Test::More tests => 24;
 use Test::Text::DokuWiki;
 
 my $doc  = Text::DokuWiki::Document->new;
-my $para = Text::DokuWiki::Element::Paragraph->new;
+my $para = Text::DokuWiki::Element::Paragraph->new(
+    parent => $doc,
+);
 
-$doc->add_child($para);
-$para->add_child(Text::DokuWiki::Element::Text->new(content => 'I '));
-$para->add_child(Text::DokuWiki::Element::Bold->new(content => 'am'));
-$para->add_child(Text::DokuWiki::Element::Text->new(content => ' home!'));
+$doc->append_child($para);
+$para->append_child(Text::DokuWiki::Element::Text->new(content => 'I ', parent => $para));
+$para->append_child(Text::DokuWiki::Element::Bold->new(content => 'am', parent => $para));
+$para->append_child(Text::DokuWiki::Element::Text->new(content => ' home!', parent => $para));
 
 check_test(
   sub {
@@ -22,8 +24,8 @@ Paragraph
   Text ' home!'
 END_TREE
   }, {
-    ok   => 1,
-    name => 'test good doc',
+    ok    => 1,
+    name  => 'test good doc',
   }
 );
 
@@ -56,14 +58,14 @@ END_TREE
 );
 
 $doc     = Text::DokuWiki::Document->new;
-$para    = Text::DokuWiki::Element::Paragraph->new;
-my $bold = Text::DokuWiki::Element::Bold->new(content => 'Two');
+$para    = Text::DokuWiki::Element::Paragraph->new(parent => $doc);
+my $bold = Text::DokuWiki::Element::Bold->new(content => 'Two', parent => $para);
 
-$doc->add_child($para);
-$para->add_child(Text::DokuWiki::Element::Text->new(content => 'One'));
-$para->add_child($bold);
-$bold->add_child(Text::DokuWiki::Element::Text->new(content => 'Three'));
-$para->add_child(Text::DokuWiki::Element::Text->new(content => 'Four'));
+$doc->append_child($para);
+$para->append_child(Text::DokuWiki::Element::Text->new(content => 'One', parent => $para));
+$para->append_child($bold);
+$bold->append_child(Text::DokuWiki::Element::Text->new(content => 'Three', parent => $para));
+$para->append_child(Text::DokuWiki::Element::Text->new(content => 'Four', parent => $para));
 
 check_test(
   sub {

@@ -202,6 +202,18 @@ sub BUILD {
         pattern => qr{//},
         handler => $self->_self_closing_element(ItalicElement),
     );
+
+    $self->_add_parser_rule(
+        name    => 'underlined',
+        pattern => qr/__/,
+        handler => $self->_self_closing_element(UnderlinedElement),
+    );
+
+    $self->_add_parser_rule(
+        name    => 'monospace',
+        pattern => qr/''/,
+        handler => $self->_self_closing_element(MonospaceElement),
+    );
 }
 
 sub parse {
@@ -214,12 +226,6 @@ sub parse {
     my $doc = Text::DokuWiki::Document->new;
     $self->current_node($doc);
     $self->_down(ParagraphElement);
-
-    # XXX getting rid of these would be nice
-    my $in_bold_section;
-    my $in_italic_section;
-    my $in_underlined_section;
-    my $in_monospace_section;
 
     TEXT_LOOP:
     while($text) {
@@ -235,23 +241,7 @@ sub parse {
 
         my $found_match = 1;
 
-        if($text =~ /\A__/p) {
-            $in_underlined_section = !$in_underlined_section;
-
-            if($in_underlined_section) {
-                $self->_down(UnderlinedElement);
-            } else {
-                $self->_up;
-            }
-        } elsif($text =~ /\A''/p) {
-            $in_monospace_section = !$in_monospace_section;
-
-            if($in_monospace_section) {
-                $self->_down(MonospaceElement);
-            } else {
-                $self->_up;
-            }
-        } elsif($text =~ /\A\n\n/p) {
+        if($text =~ /\A\n\n/p) {
             while(!$self->current_node->isa('Text::DokuWiki::Document') &&
                   !$self->current_node->isa(ParagraphElement)) {
 

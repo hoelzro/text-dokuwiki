@@ -147,6 +147,65 @@ sub _add_parser_rule {
     push @{$self->parser_rules}, \%params;
 }
 
+sub _has_ancestor {
+    my ( $self, $node_class ) = @_;
+
+    my $current_node = $self->current_node;
+
+    while(!$current_node->isa('Text::DokuWiki::Document')) {
+        if($current_node->isa($node_class)) {
+            return 1;
+        }
+        $current_node = $current_node->parent;
+    }
+    return;
+}
+
+sub BUILD {
+    my ( $self ) = @_;
+
+    # XXX I think that headers should probably appear outside of paragraphs?
+    $self->_add_parser_rule(
+        name    => 'section_header',
+        pattern => $HEADER_RE,
+        handler => sub {
+            my ( $parser, $match ) = @_;
+            $parser->_pop_text_node;
+            $parser->_append_child(HeaderElement,
+                content => $+{'header_content'},
+            );
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'bold',
+        pattern => qr/[*][*]/,
+        handler => sub {
+            my ( $parser, $match ) = @_;
+
+            if($self->_has_ancestor(BoldElement)) {
+                $self->_up;
+            } else {
+                $self->_down(BoldElement);
+            }
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'italic',
+        pattern => qr{//},
+        handler => sub {
+            my ( $parser, $match ) = @_;
+
+            if($self->_has_ancestor(ItalicElement)) {
+                $self->_up;
+            } else {
+                $self->_down(ItalicElement);
+            }
+        },
+    );
+}
+
 sub parse {
     my ( $self, $text ) = @_;
 
@@ -178,30 +237,7 @@ sub parse {
 
         my $found_match = 1;
 
-        # XXX use \G?
-        # XXX compile each component regex into a single regex?
-        if($text =~ /\A$HEADER_RE/p) {
-            $self->_pop_text_node;
-            $self->_append_child(HeaderElement,
-                content => $+{'header_content'},
-            );
-        } elsif($text =~ /\A[*][*]/p) {
-            $in_bold_section = !$in_bold_section;
-
-            if($in_bold_section) {
-                $self->_down(BoldElement);
-            } else {
-                $self->_up;
-            }
-        } elsif($text =~ m{\A//}p) {
-            $in_italic_section = !$in_italic_section;
-
-            if($in_italic_section) {
-                $self->_down(ItalicElement);
-            } else {
-                $self->_up;
-            }
-        } elsif($text =~ /\A__/p) {
+        if($text =~ /\A__/p) {
             $in_underlined_section = !$in_underlined_section;
 
             if($in_underlined_section) {

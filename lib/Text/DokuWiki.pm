@@ -7,19 +7,21 @@ use Moose;
 use 5.010;
 
 use Carp qw(croak);
+use Regexp::Common qw(URI);
 use Text::DokuWiki::Document;
 
-use aliased 'Text::DokuWiki::Element::Bold'          => 'BoldElement';
-use aliased 'Text::DokuWiki::Element::Deleted'       => 'DeletedElement';
-use aliased 'Text::DokuWiki::Element::ForcedNewline' => 'ForcedNewlineElement';
-use aliased 'Text::DokuWiki::Element::Header'        => 'HeaderElement';
-use aliased 'Text::DokuWiki::Element::Italic'        => 'ItalicElement';
-use aliased 'Text::DokuWiki::Element::Monospace'     => 'MonospaceElement';
-use aliased 'Text::DokuWiki::Element::Paragraph'     => 'ParagraphElement';
-use aliased 'Text::DokuWiki::Element::Subscript'     => 'SubscriptElement';
-use aliased 'Text::DokuWiki::Element::Superscript'   => 'SuperscriptElement';
-use aliased 'Text::DokuWiki::Element::Text'          => 'TextElement';
-use aliased 'Text::DokuWiki::Element::Underlined'    => 'UnderlinedElement';
+use aliased 'Text::DokuWiki::Element::Bold'            => 'BoldElement';
+use aliased 'Text::DokuWiki::Element::Deleted'         => 'DeletedElement';
+use aliased 'Text::DokuWiki::Element::ExternalLinkURI' => 'ExternalLinkURIElement';
+use aliased 'Text::DokuWiki::Element::ForcedNewline'   => 'ForcedNewlineElement';
+use aliased 'Text::DokuWiki::Element::Header'          => 'HeaderElement';
+use aliased 'Text::DokuWiki::Element::Italic'          => 'ItalicElement';
+use aliased 'Text::DokuWiki::Element::Monospace'       => 'MonospaceElement';
+use aliased 'Text::DokuWiki::Element::Paragraph'       => 'ParagraphElement';
+use aliased 'Text::DokuWiki::Element::Subscript'       => 'SubscriptElement';
+use aliased 'Text::DokuWiki::Element::Superscript'     => 'SuperscriptElement';
+use aliased 'Text::DokuWiki::Element::Text'            => 'TextElement';
+use aliased 'Text::DokuWiki::Element::Underlined'      => 'UnderlinedElement';
 
 my $HEADER_RE = qr{
     \s*
@@ -269,6 +271,19 @@ sub BUILD {
             my ( $parser ) = @_;
 
             $parser->_remove_pseudo_html_node($+{'tag_name'});
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'external_link_uri',
+        pattern => $RE{URI}{HTTP}{-scheme => qr/https?/},
+        handler => sub {
+            my ( $parser, $match ) = @_;
+
+            $parser->_pop_text_node;
+            $parser->_append_child(ExternalLinkURIElement,
+                content => $match,
+            );
         },
     );
 }

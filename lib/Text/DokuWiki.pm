@@ -242,6 +242,17 @@ sub _parse_square_bracket_link {
     );
 }
 
+sub _requires_paragraph {
+    my ( $self ) = @_;
+
+    unless($self->_has_ancestor(ParagraphElement)) {
+        while(! $self->current_node->isa('Text::DokuWiki::Document')) {
+            $self->_up;
+        }
+        $self->_down(ParagraphElement);
+    }
+}
+
 sub BUILD {
     my ( $self ) = @_;
 

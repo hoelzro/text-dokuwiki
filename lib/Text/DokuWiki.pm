@@ -223,8 +223,16 @@ sub _finish_paragraph {
 sub _parse_square_bracket_link {
     my ( $self, %params ) = @_;
 
+    my $page_name  = $params{'page_name'};
+    my $node_class = InternalLinkElement;
+
+    if($page_name =~ $RE{URI}{HTTP}{-scheme => qr/https?/}) {
+        $params{'link_uri'} = delete $params{'page_name'};
+        $node_class         = ExternalLinkURIElement;
+    }
+
     return $self->_create_node(
-        InternalLinkElement,
+        $node_class,
         %params,
     );
 }

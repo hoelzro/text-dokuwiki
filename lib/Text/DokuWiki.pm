@@ -77,14 +77,20 @@ has parser_rules => (
     default => sub { [] },
 );
 
+sub _create_node {
+    my ( $self, $node_class, %params ) = @_;
+
+    return $node_class->new(
+        %params,
+        parent => $self->current_node,
+    );
+}
+
 sub _append_child {
     my ( $self, $child, %params ) = @_;
 
     unless(ref $child) {
-        $child = $child->new(
-            %params,
-            parent => $self->current_node,
-        );
+        $child = $self->_create_node($child, %params);
     }
 
     $self->current_node->append_child($child);

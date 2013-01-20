@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use parent 'Exporter';
 
+use List::MoreUtils qw(uniq);
 use Text::DokuWiki;
 use Test::More;
 
@@ -25,9 +26,12 @@ sub _parse_tree {
         unless(( $indentation, $node_type, $content ) = $line =~ /$NODE_RE/) {
             return;
         }
-           $content       = defined($content) ? eval($content) : '';
+        $content = defined($content) ? eval($content) : undef;
+        unless(ref($content) eq 'HASH') {
+            $content = { content => $content };
+        }
         my $level         = length($indentation);
-        my $node          = { type => $node_type, content => $content, children => [] };
+        my $node          = { type => $node_type, attributes => $content, children => [] };
         my $current_level = $indent_stack[-1];
         my $current_node  = $node_stack[-1];
 
@@ -52,8 +56,61 @@ sub _parse_tree {
     return $node_stack[0];
 }
 
+sub _extract_attributes {
+    my ( $element ) = @_;
+
+    my $meta = $element->meta;
+
+    my @attributes = grep { $_->name ne 'children' && $_->name ne 'parent' } $meta->get_all_attributes;
+    my %hash;
+
+    foreach my $attr (@attributes) {
+        $hash{$attr->name} = $attr->get_value($element);
+    }
+
+    return \%hash;
+}
+
+sub _not_equals {
+    my ( $lhs, $rhs ) = @_;
+
+    return 1 if defined($lhs)  && !defined($rhs);
+    return 1 if !defined($lhs) && defined($rhs);
+    return 0 if !defined($lhs) && !defined($rhs);
+
+    return $lhs ne $rhs;
+}
+
+sub _diff_attributes {
+    my ( $lhs, $rhs ) = @_;
+
+    my @diff;
+
+    foreach my $key (keys %$lhs) {
+        my $lhs_value = $lhs->{$key};
+        my $rhs_value = $rhs->{$key};
+
+        if(_not_equals($lhs_value, $rhs_value)) {
+            push @diff, $key;
+        }
+    }
+
+    foreach my $key (keys %$rhs) {
+        my $rhs_value = $rhs->{$key};
+        my $lhs_value = $lhs->{$key};
+
+        if(_not_equals($lhs_value, $rhs_value)) {
+            push @diff, $key;
+        }
+    }
+
+    return uniq(@diff);
+}
+
 sub _check_tree {
-    my ( $got, $expected ) = @_;
+    my ( $got, $expected, @path ) = @_;
+
+    push @path, $expected->{'type'} // 'Document';
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
@@ -65,14 +122,21 @@ sub _check_tree {
             return undef, "Type mismatch: $got_type vs $expected_type";
         }
 
-        my $got_content      = $got->content;
-        my $expected_content = $expected->{'content'};
+        my $got_attrs      = _extract_attributes($got);
+        my $expected_attrs = $expected->{'attributes'};
 
-        $got_content      = '' unless defined $got_content;
-        $expected_content = '' unless defined $expected_content;
+        my @diff = _diff_attributes($got_attrs, $expected_attrs);
 
-        if($got_content ne $expected_content) {
-            return undef, "Content mismatch:\ngot: '$got_content'\nexpected: '$expected_content'";
+        if(@diff) {
+            my @pieces;
+            foreach my $key (@diff) {
+                my $got_value      = $got_attrs->{$key}      // 'undef';
+                my $expected_value = $expected_attrs->{$key} // 'undef';
+                push @pieces, "  got->$key: $got_value expected->$key $expected_value";
+            }
+            my $path = join(' => ', @path);
+            my $diag = "Attribute mismatch: ($path)\n" . join("\n", @pieces);
+            return undef, $diag;
         }
     }
 
@@ -90,7 +154,7 @@ sub _check_tree {
         my $got_child      = $got_children->[$i];
         my $expected_child = $expected_children->[$i];
 
-        my ( $ok, $diag ) = _check_tree($got_child, $expected_child);
+        my ( $ok, $diag ) = _check_tree($got_child, $expected_child, @path);
 
         unless($ok) {
             return $ok, $diag;

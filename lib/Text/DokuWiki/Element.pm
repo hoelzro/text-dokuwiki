@@ -21,14 +21,16 @@ has parent => (
 
 # XXX technically, only textual nodes have this
 has content => (
-    is      => 'rw', # XXX does this need to be read-only?
-    isa     => 'Str',
-    default => '',
+    is  => 'rw', # XXX does this need to be read-only?
+    isa => 'Str',
 );
 
 sub _append_content {
     my ( $self, $text ) = @_;
 
+    unless(defined $self->content) {
+        $self->content('');
+    }
     $self->content($self->content . $text);
 }
 

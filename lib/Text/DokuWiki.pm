@@ -220,6 +220,15 @@ sub _finish_paragraph {
     }
 }
 
+sub _parse_square_bracket_link {
+    my ( $self, %params ) = @_;
+
+    return $self->_create_node(
+        InternalLinkElement,
+        %params,
+    );
+}
+
 sub BUILD {
     my ( $self ) = @_;
 
@@ -334,13 +343,12 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
-            # XXX this could actually also be an external link!
             $parser->_pop_text_node;
-            $parser->_append_child(InternalLinkElement,
+            $parser->_append_child($parser->_parse_square_bracket_link(
                 page_name    => $+{'page_name'},
                 section_name => $+{'section_name'},
                 link_text    => $+{'link_text'},
-            );
+            ));
         },
     );
 }

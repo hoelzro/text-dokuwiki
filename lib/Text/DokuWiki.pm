@@ -10,21 +10,22 @@ use Carp qw(croak);
 use Regexp::Common qw(Email::Address URI);
 use Text::DokuWiki::Document;
 
-use aliased 'Text::DokuWiki::Element::Bold'            => 'BoldElement';
-use aliased 'Text::DokuWiki::Element::Deleted'         => 'DeletedElement';
-use aliased 'Text::DokuWiki::Element::EmailAddress'    => 'EmailAddressElement';
-use aliased 'Text::DokuWiki::Element::ExternalLinkURI' => 'ExternalLinkURIElement';
-use aliased 'Text::DokuWiki::Element::ForcedNewline'   => 'ForcedNewlineElement';
-use aliased 'Text::DokuWiki::Element::Header'          => 'HeaderElement';
-use aliased 'Text::DokuWiki::Element::InternalLink'    => 'InternalLinkElement';
-use aliased 'Text::DokuWiki::Element::InterWikiLink'   => 'InterWikiLinkElement';
-use aliased 'Text::DokuWiki::Element::Italic'          => 'ItalicElement';
-use aliased 'Text::DokuWiki::Element::Monospace'       => 'MonospaceElement';
-use aliased 'Text::DokuWiki::Element::Paragraph'       => 'ParagraphElement';
-use aliased 'Text::DokuWiki::Element::Subscript'       => 'SubscriptElement';
-use aliased 'Text::DokuWiki::Element::Superscript'     => 'SuperscriptElement';
-use aliased 'Text::DokuWiki::Element::Text'            => 'TextElement';
-use aliased 'Text::DokuWiki::Element::Underlined'      => 'UnderlinedElement';
+use aliased 'Text::DokuWiki::Element::Bold'             => 'BoldElement';
+use aliased 'Text::DokuWiki::Element::Deleted'          => 'DeletedElement';
+use aliased 'Text::DokuWiki::Element::EmailAddress'     => 'EmailAddressElement';
+use aliased 'Text::DokuWiki::Element::ExternalLinkURI'  => 'ExternalLinkURIElement';
+use aliased 'Text::DokuWiki::Element::ForcedNewline'    => 'ForcedNewlineElement';
+use aliased 'Text::DokuWiki::Element::Header'           => 'HeaderElement';
+use aliased 'Text::DokuWiki::Element::InternalLink'     => 'InternalLinkElement';
+use aliased 'Text::DokuWiki::Element::InterWikiLink'    => 'InterWikiLinkElement';
+use aliased 'Text::DokuWiki::Element::Italic'           => 'ItalicElement';
+use aliased 'Text::DokuWiki::Element::Monospace'        => 'MonospaceElement';
+use aliased 'Text::DokuWiki::Element::Paragraph'        => 'ParagraphElement';
+use aliased 'Text::DokuWiki::Element::Subscript'        => 'SubscriptElement';
+use aliased 'Text::DokuWiki::Element::Superscript'      => 'SuperscriptElement';
+use aliased 'Text::DokuWiki::Element::Text'             => 'TextElement';
+use aliased 'Text::DokuWiki::Element::Underlined'       => 'UnderlinedElement';
+use aliased 'Text::DokuWiki::Element::WindowsShareLink' => 'WindowsShareLinkElement';
 
 my $MAX_HEADER_LEVEL = 6;
 
@@ -239,6 +240,9 @@ sub _parse_square_bracket_link {
     } elsif($page_name =~ /\A(?<wiki>\w+)>(?<page_name>.*)/) {
         $node_class                 = InterWikiLinkElement;
         @params{qw/wiki page_name/} = @+{qw/wiki page_name/};
+    } elsif($page_name =~ m{\A\\\\}) {
+        $node_class      = WindowsShareLinkElement;
+        $params{'share'} = delete $params{'page_name'};
     }
 
     return $self->_create_node(

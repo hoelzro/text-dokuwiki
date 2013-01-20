@@ -17,6 +17,7 @@ use aliased 'Text::DokuWiki::Element::ExternalLinkURI' => 'ExternalLinkURIElemen
 use aliased 'Text::DokuWiki::Element::ForcedNewline'   => 'ForcedNewlineElement';
 use aliased 'Text::DokuWiki::Element::Header'          => 'HeaderElement';
 use aliased 'Text::DokuWiki::Element::InternalLink'    => 'InternalLinkElement';
+use aliased 'Text::DokuWiki::Element::InterWikiLink'   => 'InterWikiLinkElement';
 use aliased 'Text::DokuWiki::Element::Italic'          => 'ItalicElement';
 use aliased 'Text::DokuWiki::Element::Monospace'       => 'MonospaceElement';
 use aliased 'Text::DokuWiki::Element::Paragraph'       => 'ParagraphElement';
@@ -235,6 +236,9 @@ sub _parse_square_bracket_link {
             $params{'link_uri'} .= '#' . delete $params{'section_name'};
         }
         $node_class = ExternalLinkURIElement;
+    } elsif($page_name =~ /\A(?<wiki>\w+)>(?<page_name>.*)/) {
+        $node_class                 = InterWikiLinkElement;
+        @params{qw/wiki page_name/} = @+{qw/wiki page_name/};
     }
 
     return $self->_create_node(

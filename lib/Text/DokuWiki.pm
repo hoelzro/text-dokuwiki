@@ -201,6 +201,7 @@ sub _self_closing_element {
     return sub {
         my ( $parser ) = @_;
 
+        $parser->_requires_paragraph;
         if($parser->_has_ancestor($node_class)) {
             $parser->_up;
         } else {
@@ -342,6 +343,7 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
+            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child(ExternalLinkURIElement,
                 link_uri => $match,
@@ -355,6 +357,7 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
+            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child(EmailAddressElement,
                 content => $+{'address'},
@@ -368,6 +371,7 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
+            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child($parser->_parse_square_bracket_link(
                 page_name    => $+{'page_name'},
@@ -387,7 +391,6 @@ sub parse {
 
     my $doc = Text::DokuWiki::Document->new;
     $self->current_node($doc);
-    $self->_down(ParagraphElement);
 
     TEXT_LOOP:
     while($text) {
@@ -404,6 +407,7 @@ sub parse {
         }
 
         if($text =~ /\A./sp) {
+            $self->_requires_paragraph;
             unless($self->current_node->_is_textual) {
                 $self->_down(TextElement);
             }

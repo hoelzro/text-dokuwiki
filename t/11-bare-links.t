@@ -12,9 +12,9 @@ END_DOKUWIKI
 my $tree = <<'END_TREE';
 Paragraph
   Text 'Link One: '
-  ExternalLinkURI 'http://google.com'
+  ExternalLinkURI { link_uri => 'http://google.com' }
   Text "\nLink Two: "
-  ExternalLinkURI 'https://google.com'
+  ExternalLinkURI { link_uri => 'https://google.com' }
 END_TREE
 
 chomp $text;
@@ -28,7 +28,7 @@ END_DOKUWIKI
 $tree = <<'END_TREE';
 Paragraph
   Text 'Link Three: '
-  ExternalLinkURI 'www.google.com'
+  ExternalLinkURI { link_uri => 'www.google.com' }
 END_TREE
 
 chomp $text;

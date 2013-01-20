@@ -327,7 +327,7 @@ sub BUILD {
 
             $parser->_pop_text_node;
             $parser->_append_child(ExternalLinkURIElement,
-                content => $match,
+                link_uri => $match,
             );
         },
     );

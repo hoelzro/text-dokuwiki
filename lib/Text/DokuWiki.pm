@@ -254,6 +254,7 @@ sub BUILD {
             $parser->_pop_text_node;
             $parser->_append_child(HeaderElement,
                 content => $+{'header_content'},
+                level   => ($MAX_HEADER_LEVEL + 1) - length($+{'header_level'}),
             );
         },
     );

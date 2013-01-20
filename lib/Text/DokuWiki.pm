@@ -25,9 +25,11 @@ use aliased 'Text::DokuWiki::Element::Superscript'     => 'SuperscriptElement';
 use aliased 'Text::DokuWiki::Element::Text'            => 'TextElement';
 use aliased 'Text::DokuWiki::Element::Underlined'      => 'UnderlinedElement';
 
+my $MAX_HEADER_LEVEL = 6;
+
 my $HEADER_RE = qr{
     \s*
-    (?<header_level>={1,6})
+    (?<header_level>={1,$MAX_HEADER_LEVEL})
     (?<header_content>.*?)
     \k<header_level>
     \s*

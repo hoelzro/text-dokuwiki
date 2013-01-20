@@ -257,13 +257,12 @@ sub _requires_paragraph {
 sub BUILD {
     my ( $self ) = @_;
 
-    # XXX I think that headers should probably appear outside of paragraphs?
     $self->_add_parser_rule(
         name    => 'section_header',
         pattern => $HEADER_RE,
         handler => sub {
             my ( $parser, $match ) = @_;
-            $parser->_pop_text_node;
+            $parser->_finish_paragraph;
             $parser->_append_child(HeaderElement,
                 content => $+{'header_content'},
                 level   => ($MAX_HEADER_LEVEL + 1) - length($+{'header_level'}),

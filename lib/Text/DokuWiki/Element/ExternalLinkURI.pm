@@ -5,6 +5,7 @@ use Moose;
 extends 'Text::DokuWiki::Element';
 
 # XXX shared with InternalLink
+# XXX does content make sense for this element? for *all* elements?
 has [qw/link_uri link_text/] => (
     is => 'ro',
 );

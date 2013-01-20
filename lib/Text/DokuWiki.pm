@@ -228,7 +228,10 @@ sub _parse_square_bracket_link {
 
     if($page_name =~ $RE{URI}{HTTP}{-scheme => qr/https?/}) {
         $params{'link_uri'} = delete $params{'page_name'};
-        $node_class         = ExternalLinkURIElement;
+        if($params{'section_name'} ne '') {
+            $params{'link_uri'} .= '#' . delete $params{'section_name'};
+        }
+        $node_class = ExternalLinkURIElement;
     }
 
     return $self->_create_node(

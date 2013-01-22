@@ -2,7 +2,8 @@ use strict;
 use warnings;
 
 use Test::More tests => 2;
-use Test::Text::DokuWiki;
+use Test::Text::DokuWiki qw(:DEFAULT :link_classes);
+use URI;
 
 my $text = <<'END_DOKUWIKI';
 Link One: http://google.com
@@ -12,9 +13,9 @@ END_DOKUWIKI
 my $tree = <<'END_TREE';
 Paragraph
   Text 'Link One: '
-  ExternalLinkURI { link_uri => 'http://google.com' }
+  Link { link => ExternalLink->new(uri => URI->new('http://google.com')) }
   Text "\nLink Two: "
-  ExternalLinkURI { link_uri => 'https://google.com' }
+  Link { link => ExternalLink->new(uri => URI->new('https://google.com')) }
 END_TREE
 
 chomp $text;
@@ -28,7 +29,7 @@ END_DOKUWIKI
 $tree = <<'END_TREE';
 Paragraph
   Text 'Link Three: '
-  ExternalLinkURI { link_uri => 'www.google.com' }
+  Link { link => ExternalLink->new(uri => URI->new('www.google.com')) }
 END_TREE
 
 chomp $text;

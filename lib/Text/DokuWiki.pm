@@ -13,19 +13,21 @@ use Text::DokuWiki::Document;
 use aliased 'Text::DokuWiki::Element::Bold'             => 'BoldElement';
 use aliased 'Text::DokuWiki::Element::Deleted'          => 'DeletedElement';
 use aliased 'Text::DokuWiki::Element::EmailAddress'     => 'EmailAddressElement';
-use aliased 'Text::DokuWiki::Element::ExternalLinkURI'  => 'ExternalLinkURIElement';
 use aliased 'Text::DokuWiki::Element::ForcedNewline'    => 'ForcedNewlineElement';
 use aliased 'Text::DokuWiki::Element::Header'           => 'HeaderElement';
-use aliased 'Text::DokuWiki::Element::InternalLink'     => 'InternalLinkElement';
-use aliased 'Text::DokuWiki::Element::InterWikiLink'    => 'InterWikiLinkElement';
 use aliased 'Text::DokuWiki::Element::Italic'           => 'ItalicElement';
+use aliased 'Text::DokuWiki::Element::Link'             => 'LinkElement';
 use aliased 'Text::DokuWiki::Element::Monospace'        => 'MonospaceElement';
 use aliased 'Text::DokuWiki::Element::Paragraph'        => 'ParagraphElement';
 use aliased 'Text::DokuWiki::Element::Subscript'        => 'SubscriptElement';
 use aliased 'Text::DokuWiki::Element::Superscript'      => 'SuperscriptElement';
 use aliased 'Text::DokuWiki::Element::Text'             => 'TextElement';
 use aliased 'Text::DokuWiki::Element::Underlined'       => 'UnderlinedElement';
-use aliased 'Text::DokuWiki::Element::WindowsShareLink' => 'WindowsShareLinkElement';
+
+use aliased 'Text::DokuWiki::Link::External'     => 'ExternalLink';
+use aliased 'Text::DokuWiki::Link::Internal'     => 'InternalLink';
+use aliased 'Text::DokuWiki::Link::InterWiki'    => 'InterWikiLink';
+use aliased 'Text::DokuWiki::Link::WindowsShare' => 'WindowsShareLink';
 
 my $MAX_HEADER_LEVEL = 6;
 
@@ -48,12 +50,7 @@ my $CLOSE_PSEUDO_HTML_RE = qr{
 
 my $INTERNAL_LINK_RE = qr{
     [[][[] # leading [[
-    (?<page_name>.*?)
-
-    (?:
-      [#]
-      (?<section_name>.*?)
-    )? # optional section name
+    (?<link>.*?)
 
     (?:
       [|]
@@ -228,26 +225,22 @@ sub _finish_paragraph {
 sub _parse_square_bracket_link {
     my ( $self, %params ) = @_;
 
-    my $page_name  = $params{'page_name'};
-    my $node_class = InternalLinkElement;
+    my $link = delete $params{'link'};
 
-    if($page_name =~ $RE{URI}{HTTP}{-scheme => qr/https?/}) {
-        $params{'link_uri'} = delete $params{'page_name'};
-        if(defined($params{'section_name'}) && $params{'section_name'} ne '') {
-            $params{'link_uri'} .= '#' . delete $params{'section_name'};
-        }
-        $node_class = ExternalLinkURIElement;
-    } elsif($page_name =~ /\A(?<wiki>\w+)>(?<page_name>.*)/) {
-        $node_class                 = InterWikiLinkElement;
-        @params{qw/wiki page_name/} = @+{qw/wiki page_name/};
-    } elsif($page_name =~ m{\A\\\\}) {
-        $node_class      = WindowsShareLinkElement;
-        $params{'share'} = delete $params{'page_name'};
+    if($link =~ $RE{URI}{HTTP}{-scheme => qr/https?/}) {
+        $link = ExternalLink->new($link);
+    } elsif($link =~ /\A(?<wiki>\w+)>(?<page_name>.*)/) {
+        $link = InterWikiLink->new($link);
+    } elsif($link =~ m{\A\\\\}) {
+        $link = WindowsShareLinkElement->new($link);
+    } else {
+        $link = InternalLink->new($link);
     }
 
     return $self->_create_node(
-        $node_class,
-        %params,
+        LinkElement,
+        link      => $link,
+        link_text => $params{'link_text'},
     );
 }
 
@@ -352,8 +345,10 @@ sub BUILD {
 
             $parser->_requires_paragraph;
             $parser->_pop_text_node;
-            $parser->_append_child(ExternalLinkURIElement,
-                link_uri => $match,
+            $parser->_append_child(LinkElement,
+                link => ExternalLink->new(
+                    uri => $match,
+                ),
             );
         },
     );
@@ -381,9 +376,8 @@ sub BUILD {
             $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child($parser->_parse_square_bracket_link(
-                page_name    => $+{'page_name'},
-                section_name => $+{'section_name'},
-                link_text    => $+{'link_text'},
+                link => $+{'link'},
+                text => $+{'link_text'},
             ));
         },
     );

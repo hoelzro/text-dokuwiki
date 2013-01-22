@@ -1,10 +1,10 @@
-package Text::DokuWiki::Element::InternalLink;
+package Text::DokuWiki::Element::Link;
 
 use Moose;
 
 extends 'Text::DokuWiki::Element';
 
-has [qw/page_name section_name link_text/] => (
+has [qw/link link_text/] => (
     is => 'ro',
 );
 
@@ -23,6 +23,8 @@ __END__
 =head1 FUNCTIONS
 
 =cut
+
+
 
 
 

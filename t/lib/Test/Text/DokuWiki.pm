@@ -46,7 +46,11 @@ sub _general_moose_comparator {
 sub _general_moose_stringifier {
     my ( $value ) = @_;
 
-    return "$value";
+    my $class      = blessed($value);
+    my $attributes = _extract_attributes($value);
+
+    return $class . '->new(' . join(', ', map { "$_ => " . _stringify($attributes->{$_}) } keys %$attributes);
+
 }
 
 sub _parse_tree {

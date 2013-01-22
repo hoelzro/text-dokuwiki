@@ -2,10 +2,6 @@ package Text::DokuWiki::Link;
 
 use Moose;
 
-has link => (
-    is => 'ro',
-);
-
 has text => (
     is => 'ro',
 );

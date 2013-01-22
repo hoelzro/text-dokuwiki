@@ -13,7 +13,7 @@ our @EXPORT = qw(test_doc);
 my $NODE_RE = qr/^(\s*)(\w+)\s*(.*)?$/;
 
 sub _parse_tree {
-    my ( $tree ) = @_;
+    my ( $context, $tree ) = @_;
 
     my @lines        = split /\n/, $tree;
     my @indent_stack = ( 0 );
@@ -28,7 +28,7 @@ sub _parse_tree {
         }
         if($content) {
             my $code = $content;
-            $content = eval($code);
+            $content = eval("package $context; $code");
             unless($content) {
                 die "$code did not compile: $@";
             }
@@ -174,6 +174,8 @@ sub _check_tree {
 sub test_doc {
     my ( $doc, $expected_tree, $name ) = @_;
 
+    my $pkg = caller();
+
     unless(eval { $doc->isa('Text::DokuWiki::Document') }) {
         my $doku = Text::DokuWiki->new;
            $doc  = $doku->parse($doc);
@@ -181,7 +183,7 @@ sub test_doc {
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    $expected_tree = _parse_tree($expected_tree);
+    $expected_tree = _parse_tree($pkg, $expected_tree);
 
     unless($expected_tree) {
         fail $name;

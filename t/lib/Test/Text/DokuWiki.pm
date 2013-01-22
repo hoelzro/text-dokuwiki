@@ -5,6 +5,7 @@ use warnings;
 use parent 'Exporter';
 
 use List::MoreUtils qw(uniq);
+use Scalar::Util qw(blessed);
 use Text::DokuWiki;
 use Test::More;
 
@@ -27,6 +28,8 @@ our %EXPORT_TAGS = (
 );
 
 my $NODE_RE = qr/^(\s*)(\w+)\s*(.*)?$/;
+
+my %CLASS_COMPARATORS;
 
 sub _parse_tree {
     my ( $context, $tree ) = @_;
@@ -102,7 +105,19 @@ sub _not_equals {
     return 1 if !defined($lhs) && defined($rhs);
     return 0 if !defined($lhs) && !defined($rhs);
 
-    return $lhs ne $rhs;
+    if(blessed($lhs) && blessed($rhs)) {
+        if(blessed($lhs) ne blessed($rhs)) {
+            return 1;
+        }
+        my $class      = blessed($lhs);
+        my $comparator = $CLASS_COMPARATORS{$class};
+        unless($comparator) {
+            die "I don't know how to compare objects of type '$class'";
+        }
+        return $comparator->($lhs, $rhs) != 0;
+    } else {
+        return $lhs ne $rhs;
+    }
 }
 
 sub _diff_attributes {

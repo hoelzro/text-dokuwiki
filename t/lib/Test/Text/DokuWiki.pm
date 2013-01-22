@@ -150,6 +150,14 @@ sub _stringify {
     my ( $value ) = @_;
 
     return 'undef' unless defined($value);
+    if(my $class = blessed($value)) {
+        my $stringifier = $CLASS_STRINGIFIERS{$class};
+        unless($stringifier) {
+            die "I don't know how to stringify objects of type '$class'";
+        }
+        return $stringifier->($value);
+    }
+
     return "$value";
 }
 

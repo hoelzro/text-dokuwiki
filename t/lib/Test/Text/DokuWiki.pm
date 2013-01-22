@@ -29,7 +29,25 @@ our %EXPORT_TAGS = (
 
 my $NODE_RE = qr/^(\s*)(\w+)\s*(.*)?$/;
 
-my %CLASS_COMPARATORS;
+my %CLASS_COMPARATORS = (
+    'Text::DokuWiki::Link::External' => \&_general_moose_comparator,
+);
+
+my %CLASS_STRINGIFIERS = (
+    'Text::DokuWiki::Link::External' => \&_general_moose_stringifier,
+);
+
+sub _general_moose_comparator {
+    my ( $lhs, $rhs ) = @_;
+
+    return 1;
+}
+
+sub _general_moose_stringifier {
+    my ( $value ) = @_;
+
+    return "$value";
+}
 
 sub _parse_tree {
     my ( $context, $tree ) = @_;

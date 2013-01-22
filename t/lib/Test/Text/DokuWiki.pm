@@ -142,7 +142,7 @@ sub _not_equals {
         unless($comparator) {
             die "I don't know how to compare objects of type '$class'";
         }
-        return $comparator->($lhs, $rhs) != 0;
+        return $comparator->($lhs, $rhs);
     } else {
         return $lhs ne $rhs;
     }

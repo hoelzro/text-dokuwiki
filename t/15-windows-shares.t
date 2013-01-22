@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Test::More tests => 1;
-use Test::Text::DokuWiki;
+use Test::Text::DokuWiki qw(:DEFAULT :link_classes);
 
 my $text = <<'END_DOKUWIKI';
 [[\\windows\share]]
@@ -12,9 +12,9 @@ END_DOKUWIKI
 
 my $tree = <<'END_TREE';
 Paragraph
-  WindowsShareLink { share => q{\\\\windows\\share} }
+  Link { link => WindowsShareLink->new(share => q{\\\\windows\\share}) }
 Paragraph
-  WindowsShareLink { share => q{\\\\windows\\share}, link_text => 'with label' }
+  Link { link => WindowsShareLink->new(share => q{\\\\windows\\share}, text => 'with label') }
 END_TREE
 
 chomp $text;

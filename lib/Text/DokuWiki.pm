@@ -233,11 +233,12 @@ sub _parse_square_bracket_link {
             uri  => $link,
             text => $text,
         );
-    } elsif($link =~ /\A(?<wiki>\w+)>(?<page_name>.*)/) {
+    } elsif($link =~ /\A(?<wiki>\w+)>(?<page_name>.*?)(?:#(?<section_name>.*))?$/) {
         $link = InterWikiLink->new(
-            wiki      => $+{'wiki'},
-            page_name => $+{'page_name'},
-            text      => $text,
+            wiki         => $+{'wiki'},
+            page_name    => $+{'page_name'},
+            section_name => $+{'section_name'},
+            text         => $text,
         );
     } elsif($link =~ m{\A\\\\}) {
         $link = WindowsShareLinkElement->new(

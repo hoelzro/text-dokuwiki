@@ -146,6 +146,13 @@ sub _diff_attributes {
     return uniq(@diff);
 }
 
+sub _stringify {
+    my ( $value ) = @_;
+
+    return 'undef' unless defined($value);
+    return "$value";
+}
+
 sub _check_tree {
     my ( $got, $expected, @path ) = @_;
 
@@ -169,8 +176,8 @@ sub _check_tree {
         if(@diff) {
             my @pieces;
             foreach my $key (@diff) {
-                my $got_value      = $got_attrs->{$key}      // 'undef';
-                my $expected_value = $expected_attrs->{$key} // 'undef';
+                my $got_value      = _stringify($got_attrs->{$key});
+                my $expected_value = _stringify($expected_attrs->{$key});
                 push @pieces, "  got->$key: $got_value expected->$key $expected_value";
             }
             my $path = join(' => ', @path);

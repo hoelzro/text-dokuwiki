@@ -8,7 +8,23 @@ use List::MoreUtils qw(uniq);
 use Text::DokuWiki;
 use Test::More;
 
-our @EXPORT = qw(test_doc);
+use aliased 'Text::DokuWiki::Link::External'     => 'ExternalLink';
+use aliased 'Text::DokuWiki::Link::Internal'     => 'InternalLink';
+use aliased 'Text::DokuWiki::Link::InterWiki'    => 'InterWikiLink';
+use aliased 'Text::DokuWiki::Link::WindowsShare' => 'WindowsShareLink';
+
+my @LINK_CLASSES = qw{
+    ExternalLink
+    InternalLink
+    InterWikiLink
+    WindowsShareLink
+};
+
+our @EXPORT      = qw(test_doc);
+our @EXPORT_OK   = ( @EXPORT, @LINK_CLASSES );
+our %EXPORT_TAGS = (
+    link_classes => \@LINK_CLASSES,
+);
 
 my $NODE_RE = qr/^(\s*)(\w+)\s*(.*)?$/;
 

@@ -2,12 +2,14 @@ package Text::DokuWiki::Link::External;
 
 use Moose;
 use URI;
+use MooseX::Types::URI qw(Uri);
 
 extends 'Text::DokuWiki::Link';
 
 has uri => (
-    is  => 'ro',
-    isa => 'URI',
+    is     => 'ro',
+    isa    => Uri,
+    coerce => 1,
 );
 
 1;

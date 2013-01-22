@@ -4,7 +4,7 @@ use Moose;
 
 extends 'Text::DokuWiki::Element';
 
-has [qw/link link_text/] => (
+has link => (
     is => 'ro',
 );
 

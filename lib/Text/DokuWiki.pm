@@ -241,7 +241,7 @@ sub _parse_square_bracket_link {
             text         => $text,
         );
     } elsif($link =~ m{\A\\\\}) {
-        $link = WindowsShareLinkElement->new(
+        $link = WindowsShareLink->new(
             share => $link,
             text  => $text,
         );

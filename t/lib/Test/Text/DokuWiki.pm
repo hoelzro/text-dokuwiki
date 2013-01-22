@@ -31,6 +31,7 @@ my $NODE_RE = qr/^(\s*)(\w+)\s*(.*)?$/;
 
 my %CLASS_COMPARATORS = (
     'Text::DokuWiki::Link::External' => \&_general_moose_comparator,
+    'URI::http'                      => \&_uri_comparator,
 );
 
 my %CLASS_STRINGIFIERS = (
@@ -54,6 +55,12 @@ sub _general_moose_comparator {
     }
 
     return 0;
+}
+
+sub _uri_comparator {
+    my ( $lhs, $rhs ) = @_;
+
+    return $lhs == $rhs;
 }
 
 sub _general_moose_stringifier {

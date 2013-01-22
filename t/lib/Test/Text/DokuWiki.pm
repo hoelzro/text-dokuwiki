@@ -26,7 +26,15 @@ sub _parse_tree {
         unless(( $indentation, $node_type, $content ) = $line =~ /$NODE_RE/) {
             return;
         }
-        $content = defined($content) ? eval($content) : undef;
+        if($content) {
+            my $code = $content;
+            $content = eval($code);
+            unless($content) {
+                die "$code did not compile: $@";
+            }
+        } else {
+            $content = undef;
+        }
         unless(ref($content) eq 'HASH') {
             $content = { content => $content };
         }

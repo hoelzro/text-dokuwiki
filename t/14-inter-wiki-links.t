@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Test::More tests => 1;
-use Test::Text::DokuWiki;
+use Test::Text::DokuWiki qw(:DEFAULT :link_classes);
 
 my $text = <<'END_DOKUWIKI';
 [[wp>Wiki]]
@@ -14,11 +14,11 @@ END_DOKUWIKI
 
 my $tree = <<'END_TREE';
 Paragraph
-  InterWikiLink { wiki => 'wp', page_name => 'Wiki' }
+  Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki') }
 Paragraph
-  InterWikiLink { wiki => 'wp', page_name => 'Wiki', link_text => q{Wikipedia's Article on Wikis} }
+  Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki', text => q{Wikipedia's Article on Wikis}) }
 Paragraph
-  InterWikiLink { wiki => 'wp', page_name => 'Wiki', section_name => 'arbitrary_section', link_text => q{Wikipedia's Article on Wikis} }
+  Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki', section_name => 'arbitrary_section', text => q{Wikipedia's Article on Wikis}) }
 END_TREE
 
 chomp $text;

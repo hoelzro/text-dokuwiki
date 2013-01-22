@@ -13,6 +13,10 @@ has page_name => (
     is  => 'ro',
 );
 
+has section_name => (
+    is => 'ro',
+);
+
 1;
 
 __END__

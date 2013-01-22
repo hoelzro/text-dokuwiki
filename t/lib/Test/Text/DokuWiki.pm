@@ -35,6 +35,7 @@ my %CLASS_COMPARATORS = (
 
 my %CLASS_STRINGIFIERS = (
     'Text::DokuWiki::Link::External' => \&_general_moose_stringifier,
+    'URI::http'                      => \&_stringify_uri,
 );
 
 sub _general_moose_comparator {
@@ -50,7 +51,12 @@ sub _general_moose_stringifier {
     my $attributes = _extract_attributes($value);
 
     return $class . '->new(' . join(', ', map { "$_ => " . _stringify($attributes->{$_}) } keys %$attributes);
+}
 
+sub _stringify_uri {
+    my ( $uri ) = @_;
+
+    return "URI->new('$uri')";
 }
 
 sub _parse_tree {

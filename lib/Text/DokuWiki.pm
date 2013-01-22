@@ -226,21 +226,34 @@ sub _parse_square_bracket_link {
     my ( $self, %params ) = @_;
 
     my $link = delete $params{'link'};
+    my $text = $params{'text'};
 
     if($link =~ $RE{URI}{HTTP}{-scheme => qr/https?/}) {
-        $link = ExternalLink->new($link);
+        $link = ExternalLink->new(
+            uri  => $link,
+            text => $text,
+        );
     } elsif($link =~ /\A(?<wiki>\w+)>(?<page_name>.*)/) {
-        $link = InterWikiLink->new($link);
+        $link = InterWikiLink->new(
+            wiki      => $+{'wiki'},
+            page_name => $+{'page_name'},
+            text      => $text,
+        );
     } elsif($link =~ m{\A\\\\}) {
-        $link = WindowsShareLinkElement->new($link);
+        $link = WindowsShareLinkElement->new(
+            share => $link,
+            text  => $text,
+        );
     } else {
-        $link = InternalLink->new($link);
+        $link = InternalLink->new(
+            page_name => $link,
+            text      => $text,
+        );
     }
 
     return $self->_create_node(
         LinkElement,
-        link      => $link,
-        link_text => $params{'link_text'},
+        link => $link,
     );
 }
 

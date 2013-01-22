@@ -245,10 +245,18 @@ sub _parse_square_bracket_link {
             text  => $text,
         );
     } else {
-        $link = InternalLink->new(
-            page_name => $link,
-            text      => $text,
-        );
+        if($link =~ /(?<page_name>.*)#(?<section_name>.*)/) {
+            $link = InternalLink->new(
+                page_name    => $+{'page_name'},
+                section_name => $+{'section_name'},
+                text         => $text,
+            );
+        } else {
+            $link = InternalLink->new(
+                page_name => $link,
+                text      => $text,
+            );
+        }
     }
 
     return $self->_create_node(

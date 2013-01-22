@@ -41,7 +41,19 @@ my %CLASS_STRINGIFIERS = (
 sub _general_moose_comparator {
     my ( $lhs, $rhs ) = @_;
 
-    return 1;
+    my $lhs_attrs = _extract_attributes($lhs);
+    my $rhs_attrs = _extract_attributes($rhs);
+
+    foreach my $attr_name (keys %$lhs_attrs) {
+        my $lhs_value = $lhs_attrs->{$attr_name};
+        my $rhs_value = $rhs_attrs->{$attr_name};
+
+        if(_not_equals($lhs_value, $rhs_value)) {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 sub _general_moose_stringifier {

@@ -15,6 +15,7 @@ use aliased 'Text::DokuWiki::Element::Deleted'          => 'DeletedElement';
 use aliased 'Text::DokuWiki::Element::EmailAddress'     => 'EmailAddressElement';
 use aliased 'Text::DokuWiki::Element::ForcedNewline'    => 'ForcedNewlineElement';
 use aliased 'Text::DokuWiki::Element::Header'           => 'HeaderElement';
+use aliased 'Text::DokuWiki::Element::Image'            => 'ImageElement';
 use aliased 'Text::DokuWiki::Element::Italic'           => 'ItalicElement';
 use aliased 'Text::DokuWiki::Element::Link'             => 'LinkElement';
 use aliased 'Text::DokuWiki::Element::Monospace'        => 'MonospaceElement';
@@ -58,6 +59,29 @@ my $INTERNAL_LINK_RE = qr{
     )? # optional link text
 
     []][]] # trailing ]]
+}x;
+
+my $IMAGE_RE = qr{
+    [{][{] # leading {{
+    (?<right_align_padding>\s*) # optional padding on the left; specifies
+                                # right alignment
+    (?<link>.*?)
+    (?:
+      [?]
+      (?<width>\d+)
+      (?:
+        x
+        (?<height>\d+)
+      )?
+    )?
+    (?<left_align_padding>\s*) # same deal as the right alignment padding
+
+    (?:
+      [|]
+      (?<caption>.*?)
+    )? # optional caption
+
+    [}][}] # trailing }}
 }x;
 
 my %PSEUDO_HTML_NODE_CLASSES = (
@@ -266,6 +290,43 @@ sub _parse_square_bracket_link {
     );
 }
 
+sub _parse_image {
+    my ( $self, %params ) = @_;
+
+    my $alignment;
+
+    if($params{'right_align_padding'} ne '') {
+        if($params{'left_align_padding'} ne '') {
+            $alignment = 'center';
+        } else {
+            $alignment = 'right';
+        }
+    } elsif($params{'left_align_padding'} ne '') {
+        $alignment = 'left';
+    }
+
+    my $link = $params{'link'};
+
+    if($link =~ s/^wiki://) {
+        $link = InternalLink->new(
+            page_name => $link,
+        );
+    } else {
+        $link = ExternalLink->new(
+            uri => $link,
+        );
+    }
+
+    return $self->_create_node(
+        ImageElement,
+        link      => $link,
+        caption   => $params{'caption'},
+        alignment => $alignment,
+        width     => $params{'width'},
+        height    => $params{'height'},
+    );
+}
+
 sub _requires_paragraph {
     my ( $self ) = @_;
 
@@ -400,6 +461,25 @@ sub BUILD {
             $parser->_append_child($parser->_parse_square_bracket_link(
                 link => $+{'link'},
                 text => $+{'link_text'},
+            ));
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'image',
+        pattern => $IMAGE_RE,
+        handler => sub {
+            my ( $parser, $match ) = @_;
+
+            $parser->_requires_paragraph;
+            $parser->_pop_text_node;
+            $parser->_append_child($parser->_parse_image(
+                right_align_padding => $+{'right_align_padding'},
+                link                => $+{'link'},
+                left_align_padding  => $+{'left_align_padding'},
+                caption             => $+{'caption'},
+                width               => $+{'width'},
+                height              => $+{'height'},
             ));
         },
     );

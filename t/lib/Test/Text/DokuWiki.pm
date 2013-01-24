@@ -14,6 +14,8 @@ use aliased 'Text::DokuWiki::Link::Internal'     => 'InternalLink';
 use aliased 'Text::DokuWiki::Link::InterWiki'    => 'InterWikiLink';
 use aliased 'Text::DokuWiki::Link::WindowsShare' => 'WindowsShareLink';
 
+use aliased 'Text::DokuWiki::Element::Image' => 'ImageElement';
+
 my @LINK_CLASSES = qw{
     ExternalLink
     InternalLink
@@ -21,15 +23,21 @@ my @LINK_CLASSES = qw{
     WindowsShareLink
 };
 
+my @ELEMENT_CLASSES = qw{
+    ImageElement
+};
+
 our @EXPORT      = qw(test_doc);
-our @EXPORT_OK   = ( @EXPORT, @LINK_CLASSES );
+our @EXPORT_OK   = ( @EXPORT, @LINK_CLASSES, @ELEMENT_CLASSES );
 our %EXPORT_TAGS = (
-    link_classes => \@LINK_CLASSES,
+    element_classes => \@ELEMENT_CLASSES,
+    link_classes    => \@LINK_CLASSES,
 );
 
 my $NODE_RE = qr/^(\s*)(\w+)\s*(.*)?$/;
 
 my %CLASS_COMPARATORS = (
+    'Text::DokuWiki::Element::Image'     => \&_general_moose_comparator,
     'Text::DokuWiki::Link::External'     => \&_general_moose_comparator,
     'Text::DokuWiki::Link::Internal'     => \&_general_moose_comparator,
     'Text::DokuWiki::Link::InterWiki'    => \&_general_moose_comparator,
@@ -39,6 +47,7 @@ my %CLASS_COMPARATORS = (
 );
 
 my %CLASS_STRINGIFIERS = (
+    'Text::DokuWiki::Element::Image'     => \&_general_moose_stringifier,
     'Text::DokuWiki::Link::External'     => \&_general_moose_stringifier,
     'Text::DokuWiki::Link::Internal'     => \&_general_moose_stringifier,
     'Text::DokuWiki::Link::InterWiki'    => \&_general_moose_stringifier,

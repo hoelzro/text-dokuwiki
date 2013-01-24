@@ -252,7 +252,7 @@ sub _parse_square_bracket_link {
     my $link = delete $params{'link'};
     my $text = $params{'text'};
 
-    if($text =~ /$IMAGE_RE/) {
+    if(defined($text) && $text =~ /$IMAGE_RE/) {
         $text = $self->_parse_image(
             right_align_padding => $+{'right_align_padding'},
             link                => $+{'link'},

@@ -252,6 +252,18 @@ sub _parse_square_bracket_link {
     my $link = delete $params{'link'};
     my $text = $params{'text'};
 
+    if($text =~ /$IMAGE_RE/) {
+        $text = $self->_parse_image(
+            right_align_padding => $+{'right_align_padding'},
+            link                => $+{'link'},
+            left_align_padding  => $+{'left_align_padding'},
+            caption             => $+{'caption'},
+            width               => $+{'width'},
+            height              => $+{'height'},
+        );
+        $text->{'parent'} = undef; # XXX EVIL EVIL EVIL
+    }
+
     if($link =~ $RE{URI}{HTTP}{-scheme => qr/https?/}) {
         $link = ExternalLink->new(
             uri  => $link,

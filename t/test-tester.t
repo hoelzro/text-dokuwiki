@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Test::Tester;
-use Test::More tests => 42;
+use Test::More tests => 54;
 use Test::Text::DokuWiki;
 
 my $doc  = Text::DokuWiki::Document->new;
@@ -136,5 +136,49 @@ check_test(
   }, {
     ok   => 1,
     name => 'test good doc with more depth',
+  }
+);
+
+$doc     = Text::DokuWiki::Document->new;
+$para    = Text::DokuWiki::Element::Paragraph->new(parent => $doc);
+$bold    = Text::DokuWiki::Element::Bold->new(content => 'Two', parent => $para);
+
+$doc->append_child($para);
+$para->append_child(Text::DokuWiki::Element::Text->new(content => 'One', parent => $para));
+$para->append_child($bold);
+$bold->append_child(Text::DokuWiki::Element::Text->new(content => 'Three', parent => $para));
+$para->append_child(Text::DokuWiki::Element::Text->new(content => 'Four', parent => $para));
+
+check_test(
+  sub {
+    test_doc($doc, <<'END_TREE', 'test bad doc with bad parents');
+Paragraph
+  Text 'One'
+  Bold 'Two'
+    Text 'Three'
+  Text 'Four'
+END_TREE
+  }, {
+    ok   => 0,
+    name => 'test bad doc with bad parents',
+  }
+);
+
+check_test(
+  sub {
+    my $expected = Text::DokuWiki::Document->new;
+    $para        = Text::DokuWiki::Element::Paragraph->new(parent => $expected);
+    my $bold     = Text::DokuWiki::Element::Bold->new(content => 'Two', parent => $para);
+
+    $expected->append_child($para);
+    $para->append_child(Text::DokuWiki::Element::Text->new(content => 'One', parent => $para));
+    $para->append_child($bold);
+    $bold->append_child(Text::DokuWiki::Element::Text->new(content => 'Three', parent => $bold));
+    $para->append_child(Text::DokuWiki::Element::Text->new(content => 'Four', parent => $para));
+
+    test_doc($doc, $expected, 'test bad doc with bad parents');
+  }, {
+    ok   => 0,
+    name => 'test bad doc with bad parents',
   }
 );

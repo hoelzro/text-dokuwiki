@@ -14,7 +14,9 @@ use aliased 'Text::DokuWiki::Link::Internal'     => 'InternalLink';
 use aliased 'Text::DokuWiki::Link::InterWiki'    => 'InterWikiLink';
 use aliased 'Text::DokuWiki::Link::WindowsShare' => 'WindowsShareLink';
 
-use aliased 'Text::DokuWiki::Element::Image' => 'ImageElement';
+use aliased 'Text::DokuWiki::Element::Image'     => 'ImageElement';
+use aliased 'Text::DokuWiki::Element::Link'      => 'LinkElement';
+use aliased 'Text::DokuWiki::Element::Paragraph' => 'ParagraphElement';
 
 my @LINK_CLASSES = qw{
     ExternalLink
@@ -25,6 +27,8 @@ my @LINK_CLASSES = qw{
 
 my @ELEMENT_CLASSES = qw{
     ImageElement
+    LinkElement
+    ParagraphElement
 };
 
 our @EXPORT      = qw(test_doc);

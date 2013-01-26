@@ -1,11 +1,13 @@
 package Text::DokuWiki::Element::Link;
 
 use Moose;
+use MooseX::SetOnce;
 
 extends 'Text::DokuWiki::Element';
 
 has link => (
-    is => 'rw',
+    is     => 'rw',
+    traits => [ qw{SetOnce} ],
 );
 
 sub _is_textual {

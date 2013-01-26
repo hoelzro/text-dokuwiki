@@ -245,6 +245,7 @@ sub _diff_children {
     my $expected_children = $params{'expected'};
     my $recurse           = $params{'recurse'};
     my $path              = $params{'path'};
+    my $parent            = $params{'parent'};
 
     if(@$got_children != @$expected_children) {
         my $n_got      = @$got_children;
@@ -256,7 +257,10 @@ sub _diff_children {
     for(my $i = 0; $i < @$got_children; $i++) {
         my $got_child      = $got_children->[$i];
         my $expected_child = $expected_children->[$i];
-        # XXX I should probably verify that $got_child->parent == $got
+
+        unless($got_child->parent == $parent) {
+            return undef, q{parent doesn't match};
+        }
 
         my ( $ok, $diag ) = $recurse->($got_child, $expected_child, @$path);
 
@@ -294,6 +298,7 @@ sub _check_tree {
     }
 
     return _diff_children(
+        parent   => $got,
         got      => $got->children,
         expected => $expected->{'children'},
         recurse  => \&_check_tree,
@@ -326,6 +331,7 @@ sub _check_document {
     push @path, $type;
 
     return _diff_children(
+        parent   => $got,
         got      => $got->children,
         expected => $expected->children,
         recurse  => \&_check_document,

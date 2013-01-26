@@ -5,7 +5,7 @@ use Moose;
 extends 'Text::DokuWiki::Element';
 
 has link => (
-    is => 'ro',
+    is => 'rw',
 );
 
 sub _is_textual {

@@ -9,10 +9,24 @@ my $text = <<'END_DOKUWIKI';
 [[http://php.net|{{wiki:dokuwiki-128.png}}]]
 END_DOKUWIKI
 
-my $tree = <<'END_TREE';
-Paragraph
-  Link { link => ExternalLink->new(uri => 'http://php.net', text => ImageElement->new(link => InternalLink->new(page_name => 'dokuwiki-128.png'))) }
-END_TREE
+my $tree = Text::DokuWiki::Document->new;
+my $para = ParagraphElement->new(
+    parent => $tree,
+);
+$tree->append_child($para);
+my $link = LinkElement->new(
+    parent => $para,
+);
+$para->append_child($link);
+$link->link(ExternalLink->new(
+    uri  => URI->new('http://php.net'),
+    text => ImageElement->new(
+        parent => $link,
+        link   => InternalLink->new(
+            page_name => 'dokuwiki-128.png',
+        ),
+    ),
+));
 
 chomp $text;
 

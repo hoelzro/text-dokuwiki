@@ -225,6 +225,49 @@ sub _stringify {
     return "$value";
 }
 
+sub _summarize_diff {
+    my ( $diff, $path, $got_attrs, $expected_attrs ) = @_;
+
+    my @pieces;
+    foreach my $key (@$diff) {
+        my $got_value      = _stringify($got_attrs->{$key});
+        my $expected_value = _stringify($expected_attrs->{$key});
+        push @pieces, "  got->$key: $got_value expected->$key $expected_value";
+    }
+    $path = join(' => ', @$path);
+    return "Attribute mismatch: ($path)\n" . join("\n", @pieces);
+}
+
+sub _diff_children {
+    my %params = @_;
+
+    my $got_children      = $params{'got'};
+    my $expected_children = $params{'expected'};
+    my $recurse           = $params{'recurse'};
+    my $path              = $params{'path'};
+
+    if(@$got_children != @$expected_children) {
+        my $n_got      = @$got_children;
+        my $n_expected = @$expected_children;
+
+        return undef, "# children mismatch: $n_got vs $n_expected";
+    }
+
+    for(my $i = 0; $i < @$got_children; $i++) {
+        my $got_child      = $got_children->[$i];
+        my $expected_child = $expected_children->[$i];
+        # XXX I should probably verify that $got_child->parent == $got
+
+        my ( $ok, $diag ) = $recurse->($got_child, $expected_child, @$path);
+
+        unless($ok) {
+            return $ok, $diag;
+        }
+    }
+
+    return 1;
+}
+
 sub _check_tree {
     my ( $got, $expected, @path ) = @_;
 
@@ -246,39 +289,48 @@ sub _check_tree {
         my @diff = _diff_attributes($got_attrs, $expected_attrs);
 
         if(@diff) {
-            my @pieces;
-            foreach my $key (@diff) {
-                my $got_value      = _stringify($got_attrs->{$key});
-                my $expected_value = _stringify($expected_attrs->{$key});
-                push @pieces, "  got->$key: $got_value expected->$key $expected_value";
-            }
-            my $path = join(' => ', @path);
-            my $diag = "Attribute mismatch: ($path)\n" . join("\n", @pieces);
-            return undef, $diag;
+            return undef, _summarize_diff(\@diff, \@path, $got_attrs, $expected_attrs);
         }
     }
 
-    my $got_children      = $got->children;
-    my $expected_children = $expected->{'children'};
+    return _diff_children(
+        got      => $got->children,
+        expected => $expected->{'children'},
+        recurse  => \&_check_tree,
+        path     => \@path,
+    );
+}
 
-    if(@$got_children != @$expected_children) {
-        my $n_got      = @$got_children;
-        my $n_expected = @$expected_children;
+sub _check_document {
+    my ( $got, $expected, @path ) = @_;
 
-        return undef, "# children mismatch: $n_got vs $n_expected";
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    unless(ref($got) eq ref($expected)) {
+        my $path           = join(' => ', @path);
+        my $got_class      = ref($got);
+        my $expected_class = ref($expected);
+        return undef, "Type mismatch: ($path)\ngot:      $got_class\nexpected: $expected_class";
     }
 
-    for(my $i = 0; $i < @$got_children; $i++) {
-        my $got_child      = $got_children->[$i];
-        my $expected_child = $expected_children->[$i];
+    my $got_attrs      = _extract_attributes($got);
+    my $expected_attrs = _extract_attributes($expected);
+    my @diff           = _diff_attributes($got_attrs, $expected_attrs);
 
-        my ( $ok, $diag ) = _check_tree($got_child, $expected_child, @path);
-
-        unless($ok) {
-            return $ok, $diag;
-        }
+    if(@diff) {
+        return undef, _summarize_diff(\@diff, \@path, $got_attrs, $expected_attrs);
     }
-    return 1;
+
+    my $type = ref($got);
+    $type    =~ s/^Text::DokuWiki::(?:Element::)?//;
+    push @path, $type;
+
+    return _diff_children(
+        got      => $got->children,
+        expected => $expected->children,
+        recurse  => \&_check_document,
+        path     => \@path,
+    );
 }
 
 sub test_doc {
@@ -293,14 +345,18 @@ sub test_doc {
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    $expected_tree = _parse_tree($pkg, $expected_tree);
+    my ( $ok, $diag );
+    if(eval { $expected_tree->isa('Text::DokuWiki::Document') }) {
+        ( $ok, $diag ) = _check_document($doc, $expected_tree);
+    } else {
+        $expected_tree = _parse_tree($pkg, $expected_tree);
 
-    unless($expected_tree) {
-        fail $name;
-        return;
+        unless($expected_tree) {
+            fail $name;
+            return;
+        }
+        ( $ok, $diag ) = _check_tree($doc, $expected_tree);
     }
-
-    my ( $ok, $diag ) = _check_tree($doc, $expected_tree);
 
     ok($ok, $name) || diag($diag);
 }

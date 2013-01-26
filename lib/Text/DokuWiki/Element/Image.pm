@@ -4,10 +4,6 @@ use Moose;
 
 extends 'Text::DokuWiki::Element';
 
-has '+parent' => (
-    required => 0,
-);
-
 has [qw/link width height alignment caption/] => (
     is => 'ro',
 );

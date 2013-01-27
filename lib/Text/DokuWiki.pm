@@ -13,6 +13,7 @@ use Text::DokuWiki::Document;
 use aliased 'Text::DokuWiki::Element::Bold'             => 'BoldElement';
 use aliased 'Text::DokuWiki::Element::Deleted'          => 'DeletedElement';
 use aliased 'Text::DokuWiki::Element::EmailAddress'     => 'EmailAddressElement';
+use aliased 'Text::DokuWiki::Element::Footnote'         => 'FootnoteElement';
 use aliased 'Text::DokuWiki::Element::ForcedNewline'    => 'ForcedNewlineElement';
 use aliased 'Text::DokuWiki::Element::Header'           => 'HeaderElement';
 use aliased 'Text::DokuWiki::Element::Image'            => 'ImageElement';
@@ -493,6 +494,20 @@ sub BUILD {
                 width               => $+{'width'},
                 height              => $+{'height'},
             ));
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'footnotes',
+        pattern => qr/[(][(](?<footnote>.*?)[)][)]/,
+        handler => sub {
+            my ( $parser, $match ) = @_;
+
+            $parser->_requires_paragraph;
+            $parser->_pop_text_node;
+            $parser->_append_child(FootnoteElement,
+                content => $+{'footnote'},
+            );
         },
     );
 }

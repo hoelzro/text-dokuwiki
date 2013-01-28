@@ -10,10 +10,6 @@ has link => (
     traits => [ qw{SetOnce} ],
 );
 
-sub _is_textual {
-    return 0;
-}
-
 1;
 
 __END__

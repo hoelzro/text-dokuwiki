@@ -8,10 +8,6 @@ has [qw/link width height alignment caption/] => (
     is => 'ro',
 );
 
-sub _is_textual {
-    return 0;
-}
-
 1;
 
 __END__

@@ -4,7 +4,7 @@ use Moose;
 
 extends 'Text::DokuWiki::Element';
 
-has [qw/link width height alignment caption/] => (
+has [qw/source width height alignment caption/] => (
     is => 'ro',
 );
 

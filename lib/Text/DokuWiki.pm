@@ -67,7 +67,7 @@ my $IMAGE_RE = qr{
     [{][{] # leading {{
     (?<right_align_padding>\s*) # optional padding on the left; specifies
                                 # right alignment
-    (?<link>.*?)
+    (?<source>.*?)
     (?:
       [?]
       (?<width>\d+)
@@ -257,7 +257,7 @@ sub _parse_square_bracket_link {
     if(defined($text) && $text =~ /$IMAGE_RE/) {
         $text = $self->_parse_image(
             right_align_padding => $+{'right_align_padding'},
-            link                => $+{'link'},
+            source              => $+{'source'},
             left_align_padding  => $+{'left_align_padding'},
             caption             => $+{'caption'},
             width               => $+{'width'},
@@ -319,21 +319,21 @@ sub _parse_image {
         $alignment = 'left';
     }
 
-    my $link = $params{'link'};
+    my $source = $params{'source'};
 
-    if($link =~ s/^wiki://) {
-        $link = InternalLink->new(
-            page_name => $link,
+    if($source =~ s/^wiki://) {
+        $source = InternalLink->new(
+            page_name => $source,
         );
     } else {
-        $link = ExternalLink->new(
-            uri => $link,
+        $source = ExternalLink->new(
+            uri => $source,
         );
     }
 
     return $self->_create_node(
         ImageElement,
-        link      => $link,
+        source    => $source,
         caption   => $params{'caption'},
         alignment => $alignment,
         width     => $params{'width'},
@@ -488,7 +488,7 @@ sub BUILD {
             $parser->_pop_text_node;
             $parser->_append_child($parser->_parse_image(
                 right_align_padding => $+{'right_align_padding'},
-                link                => $+{'link'},
+                source              => $+{'source'},
                 left_align_padding  => $+{'left_align_padding'},
                 caption             => $+{'caption'},
                 width               => $+{'width'},

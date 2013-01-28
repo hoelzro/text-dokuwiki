@@ -22,7 +22,7 @@ $link->link(ExternalLink->new(
     uri  => URI->new('http://php.net'),
     text => ImageElement->new(
         parent => $link,
-        link   => InternalLink->new(
+        source => InternalLink->new(
             page_name => 'dokuwiki-128.png',
         ),
     ),

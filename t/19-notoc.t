@@ -14,7 +14,7 @@ contents.
 END_DOKUWIKI
 
 my $tree = <<'END_TREE';
-Header { content => ' Heading 1 ',   level => 1 }
+Heading { content => ' Heading 1 ',   level => 1 }
 Paragraph
   Text "\nThis is a document without a table of\ncontents."
 NoTOC

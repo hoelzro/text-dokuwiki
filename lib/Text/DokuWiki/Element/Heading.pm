@@ -1,4 +1,4 @@
-package Text::DokuWiki::Element::Header;
+package Text::DokuWiki::Element::Heading;
 
 use Moose;
 

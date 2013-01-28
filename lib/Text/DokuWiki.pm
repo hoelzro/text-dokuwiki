@@ -15,7 +15,7 @@ use aliased 'Text::DokuWiki::Element::Deleted'          => 'DeletedElement';
 use aliased 'Text::DokuWiki::Element::EmailAddress'     => 'EmailAddressElement';
 use aliased 'Text::DokuWiki::Element::Footnote'         => 'FootnoteElement';
 use aliased 'Text::DokuWiki::Element::ForcedNewline'    => 'ForcedNewlineElement';
-use aliased 'Text::DokuWiki::Element::Header'           => 'HeaderElement';
+use aliased 'Text::DokuWiki::Element::Heading'          => 'HeadingElement';
 use aliased 'Text::DokuWiki::Element::Image'            => 'ImageElement';
 use aliased 'Text::DokuWiki::Element::Italic'           => 'ItalicElement';
 use aliased 'Text::DokuWiki::Element::Link'             => 'LinkElement';
@@ -361,7 +361,7 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
             $parser->_finish_paragraph;
-            $parser->_append_child(HeaderElement,
+            $parser->_append_child(HeadingElement,
                 content => $+{'header_content'},
                 level   => ($MAX_HEADER_LEVEL + 1) - length($+{'header_level'}),
             );

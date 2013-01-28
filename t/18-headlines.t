@@ -14,12 +14,12 @@ my $text = <<'END_DOKUWIKI';
 END_DOKUWIKI
 
 my $tree = <<'END_TREE';
-Header { content => ' Heading One ',   level => 1 }
-Header { content => ' Heading Two ',   level => 2 }
-Header { content => ' Heading Three ', level => 3 }
-Header { content => ' Heading Four ',  level => 4 }
-Header { content => ' Heading Five ',  level => 5 }
-Header { content => ' Heading Six ',   level => 6 }
+Heading { content => ' Heading One ',   level => 1 }
+Heading { content => ' Heading Two ',   level => 2 }
+Heading { content => ' Heading Three ', level => 3 }
+Heading { content => ' Heading Four ',  level => 4 }
+Heading { content => ' Heading Five ',  level => 5 }
+Heading { content => ' Heading Six ',   level => 6 }
 END_TREE
 
 chomp $text;

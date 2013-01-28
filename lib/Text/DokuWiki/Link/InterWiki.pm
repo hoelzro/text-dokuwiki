@@ -5,11 +5,11 @@ use Moose;
 extends 'Text::DokuWiki::Link';
 
 has wiki => (
-    is  => 'ro',
+    is => 'ro',
 );
 
 has page_name => (
-    is  => 'ro',
+    is => 'ro',
 );
 
 has section_name => (

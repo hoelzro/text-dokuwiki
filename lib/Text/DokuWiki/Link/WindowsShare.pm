@@ -5,7 +5,7 @@ use Moose;
 extends 'Text::DokuWiki::Link';
 
 has share => (
-    is  => 'ro',
+    is => 'ro',
 );
 
 1;

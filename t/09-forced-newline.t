@@ -10,9 +10,7 @@ END_DOKUWIKI
 
 my $tree = <<'END_TREE';
 Paragraph
-  Text 'This is'
-  ForcedNewline
-  Text 'a forced newline'
+  Text "This is\na forced newline"
 END_TREE
 
 chomp $text;

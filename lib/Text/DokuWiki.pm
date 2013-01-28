@@ -14,7 +14,6 @@ use aliased 'Text::DokuWiki::Element::Bold'             => 'BoldElement';
 use aliased 'Text::DokuWiki::Element::Deleted'          => 'DeletedElement';
 use aliased 'Text::DokuWiki::Element::EmailAddress'     => 'EmailAddressElement';
 use aliased 'Text::DokuWiki::Element::Footnote'         => 'FootnoteElement';
-use aliased 'Text::DokuWiki::Element::ForcedNewline'    => 'ForcedNewlineElement';
 use aliased 'Text::DokuWiki::Element::Heading'          => 'HeadingElement';
 use aliased 'Text::DokuWiki::Element::Image'            => 'ImageElement';
 use aliased 'Text::DokuWiki::Element::Italic'           => 'ItalicElement';
@@ -408,8 +407,11 @@ sub BUILD {
         handler => sub {
             my ( $parser ) = @_;
 
-            $parser->_pop_text_node;
-            $parser->_append_child(ForcedNewlineElement);
+            $parser->_requires_paragraph;
+            unless($self->current_node->_is_textual) {
+                $self->_down(TextElement);
+            }
+            $self->_append_content("\n");
         },
     );
 

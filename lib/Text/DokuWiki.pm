@@ -398,7 +398,6 @@ sub BUILD {
             my ( $parser ) = @_;
 
             $parser->_finish_paragraph;
-            $parser->_down(ParagraphElement);
         },
     );
 

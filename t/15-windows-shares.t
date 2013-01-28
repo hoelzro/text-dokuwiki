@@ -14,7 +14,7 @@ my $tree = <<'END_TREE';
 Paragraph
   Link { link => WindowsShareLink->new(share => q{\\\\windows\\share}) }
 Paragraph
-  Link { link => WindowsShareLink->new(share => q{\\\\windows\\share}, text => 'with label') }
+  Link { link => WindowsShareLink->new(share => q{\\\\windows\\share}, label => 'with label') }
 END_TREE
 
 chomp $text;

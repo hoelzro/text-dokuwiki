@@ -14,11 +14,11 @@ END_DOKUWIKI
 my $tree = <<'END_TREE';
 Paragraph
   Text 'Link One: '
-  Link { link => ExternalLink->new(uri => URI->new('http://google.com'), text => 'Google') }
+  Link { link => ExternalLink->new(uri => URI->new('http://google.com'), label => 'Google') }
   Text "\nLink Two: "
   EmailAddress 'john.smith@example.com'
   Text "\nLink Three: "
-  Link { link => ExternalLink->new(uri => URI->new('http://google.com#section'), text => 'Google Section') }
+  Link { link => ExternalLink->new(uri => URI->new('http://google.com#section'), label => 'Google Section') }
 END_TREE
 
 chomp $text;

@@ -16,9 +16,9 @@ my $tree = <<'END_TREE';
 Paragraph
   Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki') }
 Paragraph
-  Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki', text => q{Wikipedia's Article on Wikis}) }
+  Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki', label => q{Wikipedia's Article on Wikis}) }
 Paragraph
-  Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki', section_name => 'arbitrary_section', text => q{Wikipedia's Article on Wikis}) }
+  Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki', section_name => 'arbitrary_section', label => q{Wikipedia's Article on Wikis}) }
 END_TREE
 
 chomp $text;

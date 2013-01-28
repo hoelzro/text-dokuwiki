@@ -57,8 +57,8 @@ my $INTERNAL_LINK_RE = qr{
 
     (?:
       [|]
-      (?<link_text>.*?)
-    )? # optional link text
+      (?<link_label>.*?)
+    )? # optional link label
 
     []][]] # trailing ]]
 }x;
@@ -251,11 +251,11 @@ sub _finish_paragraph {
 sub _parse_square_bracket_link {
     my ( $self, %params ) = @_;
 
-    my $link = delete $params{'link'};
-    my $text = $params{'text'};
+    my $link  = delete $params{'link'};
+    my $label = $params{'label'};
 
-    if(defined($text) && $text =~ /$IMAGE_RE/) {
-        $text = $self->_parse_image(
+    if(defined($label) && $label =~ /$IMAGE_RE/) {
+        $label = $self->_parse_image(
             right_align_padding => $+{'right_align_padding'},
             source              => $+{'source'},
             left_align_padding  => $+{'left_align_padding'},
@@ -263,37 +263,37 @@ sub _parse_square_bracket_link {
             width               => $+{'width'},
             height              => $+{'height'},
         );
-        $text->{'parent'} = undef; # XXX EVIL EVIL EVIL
+        $label->{'parent'} = undef; # XXX EVIL EVIL EVIL
     }
 
     if($link =~ $RE{URI}{HTTP}{-scheme => qr/https?/}) {
         $link = ExternalLink->new(
-            uri  => $link,
-            text => $text,
+            uri   => $link,
+            label => $label,
         );
     } elsif($link =~ /\A(?<wiki>\w+)>(?<page_name>.*?)(?:#(?<section_name>.*))?$/) {
         $link = InterWikiLink->new(
             wiki         => $+{'wiki'},
             page_name    => $+{'page_name'},
             section_name => $+{'section_name'},
-            text         => $text,
+            label        => $label,
         );
     } elsif($link =~ m{\A\\\\}) {
         $link = WindowsShareLink->new(
             share => $link,
-            text  => $text,
+            label => $label,
         );
     } else {
         if($link =~ /(?<page_name>.*)#(?<section_name>.*)/) {
             $link = InternalLink->new(
                 page_name    => $+{'page_name'},
                 section_name => $+{'section_name'},
-                text         => $text,
+                label        => $label,
             );
         } else {
             $link = InternalLink->new(
                 page_name => $link,
-                text      => $text,
+                label     => $label,
             );
         }
     }
@@ -472,8 +472,8 @@ sub BUILD {
             $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child($parser->_parse_square_bracket_link(
-                link => $+{'link'},
-                text => $+{'link_text'},
+                link  => $+{'link'},
+                label => $+{'link_label'},
             ));
         },
     );

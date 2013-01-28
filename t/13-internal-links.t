@@ -13,11 +13,11 @@ END_DOKUWIKI
 my $tree = <<'END_TREE';
 Paragraph
   Text 'Link One: '
-  Link { link => InternalLink->new(page_name => 'pagename', text => 'text') }
+  Link { link => InternalLink->new(page_name => 'pagename', label => 'text') }
   Text "\nLink Two: "
   Link { link => InternalLink->new(page_name => 'pagename', section_name => 'section') }
   Text "\nLink Three: "
-  Link { link => InternalLink->new(page_name => 'pagename', section_name => 'section', text => 'text') }
+  Link { link => InternalLink->new(page_name => 'pagename', section_name => 'section', label => 'text') }
 END_TREE
 
 chomp $text;

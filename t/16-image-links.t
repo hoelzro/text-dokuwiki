@@ -19,8 +19,8 @@ my $link = LinkElement->new(
 );
 $para->append_child($link);
 $link->link(ExternalLink->new(
-    uri  => URI->new('http://php.net'),
-    text => ImageElement->new(
+    uri   => URI->new('http://php.net'),
+    label => ImageElement->new(
         parent => $link,
         source => InternalLink->new(
             page_name => 'dokuwiki-128.png',

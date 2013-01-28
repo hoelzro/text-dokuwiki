@@ -2,7 +2,7 @@ package Text::DokuWiki::Link;
 
 use Moose;
 
-has text => (
+has label => (
     is => 'ro',
 );
 

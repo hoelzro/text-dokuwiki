@@ -1,7 +1,6 @@
 package Text::DokuWiki::Link::WindowsShare;
 
 use Moose;
-use URI;
 
 extends 'Text::DokuWiki::Link';
 

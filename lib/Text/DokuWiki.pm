@@ -20,6 +20,7 @@ use aliased 'Text::DokuWiki::Element::Image'            => 'ImageElement';
 use aliased 'Text::DokuWiki::Element::Italic'           => 'ItalicElement';
 use aliased 'Text::DokuWiki::Element::Link'             => 'LinkElement';
 use aliased 'Text::DokuWiki::Element::Monospace'        => 'MonospaceElement';
+use aliased 'Text::DokuWiki::Element::NoTOC'            => 'NoTOCElement';
 use aliased 'Text::DokuWiki::Element::Paragraph'        => 'ParagraphElement';
 use aliased 'Text::DokuWiki::Element::Subscript'        => 'SubscriptElement';
 use aliased 'Text::DokuWiki::Element::Superscript'      => 'SuperscriptElement';
@@ -507,6 +508,17 @@ sub BUILD {
             $parser->_append_child(FootnoteElement,
                 content => $+{'footnote'},
             );
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'notoc',
+        pattern => qr/~~NOTOC~~/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_finish_paragraph;
+            $parser->_append_child(NoTOCElement);
         },
     );
 }

@@ -131,8 +131,11 @@ sub _parse_tree {
         my $current_node  = $node_stack[-1];
 
         if($level < $current_level) {
-            pop @indent_stack;
-            pop @node_stack;
+            while(@indent_stack && $level < $indent_stack[-1]) {
+                pop @indent_stack;
+                pop @node_stack;
+            }
+            return unless @indent_stack;
             if($level != $indent_stack[-1]) {
                 return;
             }

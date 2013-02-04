@@ -18,6 +18,8 @@ use aliased 'Text::DokuWiki::Element::Heading'          => 'HeadingElement';
 use aliased 'Text::DokuWiki::Element::Image'            => 'ImageElement';
 use aliased 'Text::DokuWiki::Element::Italic'           => 'ItalicElement';
 use aliased 'Text::DokuWiki::Element::Link'             => 'LinkElement';
+use aliased 'Text::DokuWiki::Element::List'             => 'ListElement';
+use aliased 'Text::DokuWiki::Element::ListItem'         => 'ListItemElement';
 use aliased 'Text::DokuWiki::Element::Monospace'        => 'MonospaceElement';
 use aliased 'Text::DokuWiki::Element::NoTOC'            => 'NoTOCElement';
 use aliased 'Text::DokuWiki::Element::Paragraph'        => 'ParagraphElement';
@@ -522,6 +524,31 @@ sub BUILD {
             $parser->_finish_paragraph;
             $parser->_append_child(NoTOCElement);
         },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'lists',
+        pattern => qr/^(?<indent>\s{2,})(?<list_char>[*-])(?<list_item_content>[^\n]+)$/m,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            my $last_child = $parser->current_node->children->[-1];
+            my $parent_list;
+
+            if($last_child && $last_child->isa(ListElement)) {
+                $parent_list = $last_child;
+            } else {
+                $parent_list = $parser->_append_child(ListElement);
+            }
+
+            my $child = ListItemElement->new(
+                content => $+{'list_item_content'},
+                _indent => length($+{'indent'}),
+                parent  => $parent_list,
+            );
+
+            $parent_list->append_child($child);
+        }
     );
 }
 

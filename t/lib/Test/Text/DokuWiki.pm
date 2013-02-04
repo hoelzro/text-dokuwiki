@@ -159,7 +159,7 @@ sub _extract_attributes {
 
     my $meta = $element->meta;
 
-    my @attributes = grep { $_->name ne 'children' && $_->name ne 'parent' } $meta->get_all_attributes;
+    my @attributes = grep { $_->name ne 'children' && $_->name ne 'parent' && $_->name !~ /^_/ } $meta->get_all_attributes;
     my %hash;
 
     foreach my $attr (@attributes) {

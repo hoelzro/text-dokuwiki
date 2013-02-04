@@ -23,6 +23,7 @@ chomp $text;
 
 test_doc $text, $tree;
 
+# XXX Are lists within paragraphs, or outside of them?
 # XXX Test markup (like **this**) in list items
 # XXX Test unindented list items (they should be regular text)
 # XXX Test exceptional circumstances mentioned on https://www.dokuwiki.org/faq:lists

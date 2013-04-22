@@ -4,7 +4,8 @@ use strict;
 use warnings;
 use parent 'Exporter';
 
-use List::MoreUtils qw(uniq);
+use Data::Dumper;
+use List::MoreUtils qw(none uniq);
 use Scalar::Util qw(blessed);
 use Text::DokuWiki;
 use Test::More;
@@ -344,6 +345,44 @@ sub _check_document {
         recurse  => \&_check_document,
         path     => \@path,
     );
+}
+
+sub dump_tree {
+    my ( $doc, $dumper, $indent_level ) = @_;
+
+    unless($dumper) {
+        $dumper = Data::Dumper->new([]);
+        $dumper->Indent(0);
+        $dumper->Terse(1);
+        $dumper->Quotekeys(0);
+        $dumper->Maxdepth(1);
+        $dumper->Sortkeys(1);
+    }
+
+    $indent_level //= 0;
+
+    if($indent_level == 0) {
+        diag('');
+    }
+
+    my $indent = ' ' x $indent_level;
+
+    my $class = ref($doc);
+    $class    =~ s/^Text::DokuWiki::(?:Element::)?//;
+    my $attrs = _extract_attributes($doc);
+    if(exists $attrs->{'content'} && none { $_ ne 'content' } keys %$attrs) {
+        $attrs = $attrs->{'content'};
+    }
+
+    $dumper->Values([ $attrs ]);
+    $dumper->Reset;
+
+    diag($indent . $class . ' ' . $dumper->Dump);
+    my $children = $doc->can('children') ? $doc->children : [];
+
+    foreach my $child (@$children){
+        dump_tree($child, $dumper, $indent_level + 1);
+    }
 }
 
 sub test_doc {

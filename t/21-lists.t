@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -34,6 +34,28 @@ chomp $text;
 $tree = <<'END_TREE';
 List { ordered => 1 }
   ListItem ' This is a list'
+  ListItem ' The second item'
+  ListItem ' Another item'
+END_TREE
+
+test_doc $text, $tree;
+
+$text = <<'END_DOKUWIKI';
+  * This is a list
+    * This is a nested sublist
+    * Second item of the nested sublist
+  * The second item
+  * Another item
+END_DOKUWIKI
+
+chomp $text;
+
+$tree = <<'END_TREE';
+List { ordered => 0 }
+  ListItem ' This is a list'
+    List { ordered => 0 }
+      ListItem ' This is a nested sublist'
+      ListItem ' Second item of the nested sublist'
   ListItem ' The second item'
   ListItem ' Another item'
 END_TREE

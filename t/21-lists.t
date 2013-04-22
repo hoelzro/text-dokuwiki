@@ -71,3 +71,7 @@ test_doc $text, $tree;
 # XXX should we mark orderedness with an attribute? or with the class?
 # XXX test with forced newlines (should allow multiple lines in a list item)
 # XXX test with code blocks
+# XXX what about this:
+#   * One
+#    * Two (note, *one* space of indent)
+#   * Three

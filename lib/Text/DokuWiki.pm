@@ -538,7 +538,10 @@ sub BUILD {
             if($last_child && $last_child->isa(ListElement)) {
                 $parent_list = $last_child;
             } else {
-                $parent_list = $parser->_append_child(ListElement);
+                my $ordered = ($+{'list_char'} eq '-') ? 1 : 0;
+                $parent_list = $parser->_append_child(ListElement,
+                    ordered => $ordered,
+                );
             }
 
             my $child = ListItemElement->new(

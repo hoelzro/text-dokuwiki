@@ -9,6 +9,10 @@ has ordered => (
     default => 0,
 );
 
+has _indent => (
+    is => 'ro',
+);
+
 1;
 
 __END__

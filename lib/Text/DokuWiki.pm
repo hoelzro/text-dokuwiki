@@ -547,9 +547,8 @@ sub BUILD {
                 $parent_list       = $last_child;
                 my $last_list_item = $parent_list->last_child; # we assume here that no listelement is empty
 
-                while(@{$last_list_item->children} > 0 &&
-                      $last_list_item->last_child->isa(ListElement)) {
-                    my $sublist    = $last_list_item->last_child;
+                while($last_list_item->isa(ListElement)) {
+                    my $sublist    = $last_list_item;
                     if($sublist->last_child->_indent > $indent) {
                         last;
                     }
@@ -557,23 +556,27 @@ sub BUILD {
                     $last_list_item = $parent_list->last_child;
                 }
                 if($last_list_item->_indent < $indent) {
+                    my $super_list = $parent_list;
                     $parent_list = ListElement->new(
                         ordered => $ordered,
-                        parent  => $last_list_item,
+                        parent  => $super_list,
+                        _indent  => $last_list_item->_indent,
                     );
-                    $last_list_item->append_child($parent_list);
+                    $super_list->append_child($parent_list);
                 } elsif($ordered != $parent_list->ordered) {
                     my $superlist = $parent_list->parent;
 
                     $parent_list = ListElement->new(
                         ordered => $ordered,
                         parent  => $superlist,
+                        _indent  => $last_list_item->_indent,
                     );
                     $superlist->append_child($parent_list);
                 }
             } else {
                 $parent_list = $parser->_append_child(ListElement,
                     ordered => $ordered,
+                    _indent => 0,
                 );
             }
 

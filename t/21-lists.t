@@ -47,9 +47,9 @@ END_DOKUWIKI
 $tree = <<'END_TREE';
 List { ordered => 0 }
   ListItem ' This is a list'
-    List { ordered => 0 }
-      ListItem ' This is a nested sublist'
-      ListItem ' Second item of the nested sublist'
+  List { ordered => 0 }
+    ListItem ' This is a nested sublist'
+    ListItem ' Second item of the nested sublist'
   ListItem ' The second item'
   ListItem ' Another item'
 END_TREE
@@ -89,9 +89,9 @@ $tree = <<'END_TREE';
 List { ordered => 0 }
   ListItem ' First Item'
   ListItem ' Second Item'
-    List { ordered => 1 }
-      ListItem ' Numbered Sublist!'
-      ListItem ' More numbered stuff!'
+  List { ordered => 1 }
+    ListItem ' Numbered Sublist!'
+    ListItem ' More numbered stuff!'
   ListItem ' Third Item'
 END_TREE
 

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -62,7 +62,29 @@ END_TREE
 
 test_doc $text, $tree;
 
-# XXX mix ordered an unordered items
+$text = <<'END_DOKUWIKI';
+  * This is a list
+  * Item 2
+  - First numbered item
+  - Second numbered item
+  * Item 3
+END_DOKUWIKI
+
+chomp $text;
+
+$tree = <<'END_TREE';
+List { ordered => 0 }
+  ListItem ' This is a list'
+  ListItem ' Item 2'
+List { ordered => 1 }
+  ListItem ' First numbered item'
+  ListItem ' Second numbered item'
+List { ordered => 0 }
+  ListItem ' Item 3'
+END_TREE
+
+test_doc $text, $tree;
+
 # XXX Are lists within paragraphs, or outside of them?
 # XXX Test markup (like **this**) in list items
 # XXX Test unindented list items (they should be regular text)

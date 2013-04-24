@@ -560,6 +560,14 @@ sub BUILD {
                         parent  => $last_list_item,
                     );
                     $last_list_item->append_child($parent_list);
+                } elsif($ordered != $parent_list->ordered) {
+                    my $superlist = $parent_list->parent;
+
+                    $parent_list = ListElement->new(
+                        ordered => $ordered,
+                        parent  => $superlist,
+                    );
+                    $superlist->append_child($parent_list);
                 }
             } else {
                 $parent_list = $parser->_append_child(ListElement,

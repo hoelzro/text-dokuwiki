@@ -19,7 +19,7 @@ List { ordered => 0 }
   ListItem ' Another item'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test a basic list of unordered items';
 
 $text = <<'END_DOKUWIKI';
   - This is a list
@@ -34,7 +34,7 @@ List { ordered => 1 }
   ListItem ' Another item'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test a basic list of ordered items';
 
 $text = <<'END_DOKUWIKI';
   * This is a list
@@ -54,7 +54,7 @@ List { ordered => 0 }
   ListItem ' Another item'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test a nested list';
 
 $text = <<'END_DOKUWIKI';
   * This is a list
@@ -75,7 +75,7 @@ List { ordered => 0 }
   ListItem ' Item 3'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test a mixture of ordered/unordered items';
 
 $text = <<'END_DOKUWIKI';
   * First Item
@@ -95,7 +95,7 @@ List { ordered => 0 }
   ListItem ' Third Item'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test an ordered sublist under an unordered list';
 
 $text = <<'END_DOKUWIKI';
 Some text in a paragraph.
@@ -118,7 +118,7 @@ Paragraph
   Text "\nMore text."
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test interleaving of lists and paragraphs';
 
 # XXX Test markup (like **this**) in list items
 # XXX Test unindented list items (they should be regular text)

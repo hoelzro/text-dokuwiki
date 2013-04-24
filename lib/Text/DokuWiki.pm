@@ -535,18 +535,41 @@ sub BUILD {
             my $last_child = $parser->current_node->children->[-1];
             my $parent_list;
 
+            my $ordered = ($+{'list_char'} eq '-') ? 1 : 0;
+            my $content = $+{'list_item_content'};
+            my $indent  = $+{'indent'};
+            $indent     =~ s/^\n//; # for some reason, we sometimes have a leading newline
+            $indent     = length($indent);
+
             if($last_child && $last_child->isa(ListElement)) {
-                $parent_list = $last_child;
+                $parent_list       = $last_child;
+                my $last_list_item = $parent_list->children->[-1]; # we assume here that no listelement is empty
+
+                while(@{$last_list_item->children} > 0 &&
+                      $last_list_item->children->[-1]->isa(ListElement)) {
+                    my $sublist    = $last_list_item->children->[-1];
+                    if($sublist->children->[-1]->_indent > $indent) {
+                        last;
+                    }
+                    $parent_list    = $sublist;
+                    $last_list_item = $parent_list->children->[-1];
+                }
+                if($last_list_item->_indent < $indent) {
+                    $parent_list = ListElement->new(
+                        ordered => $ordered,
+                        parent  => $last_list_item,
+                    );
+                    $last_list_item->append_child($parent_list);
+                }
             } else {
-                my $ordered = ($+{'list_char'} eq '-') ? 1 : 0;
                 $parent_list = $parser->_append_child(ListElement,
                     ordered => $ordered,
                 );
             }
 
             my $child = ListItemElement->new(
-                content => $+{'list_item_content'},
-                _indent => length($+{'indent'}),
+                content => $content,
+                _indent => $indent,
                 parent  => $parent_list,
             );
 

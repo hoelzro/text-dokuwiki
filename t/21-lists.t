@@ -75,3 +75,5 @@ test_doc $text, $tree;
 #   * One
 #    * Two (note, *one* space of indent)
 #   * Three
+# XXX also this:
+#     * One (first item: four spaces indent)

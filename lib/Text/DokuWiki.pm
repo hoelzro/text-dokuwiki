@@ -532,7 +532,7 @@ sub BUILD {
         handler => sub {
             my ( $parser ) = @_;
 
-            my $last_child = $parser->current_node->children->[-1];
+            my $last_child = $parser->current_node->last_child;
             my $parent_list;
 
             my $ordered = ($+{'list_char'} eq '-') ? 1 : 0;
@@ -543,16 +543,16 @@ sub BUILD {
 
             if($last_child && $last_child->isa(ListElement)) {
                 $parent_list       = $last_child;
-                my $last_list_item = $parent_list->children->[-1]; # we assume here that no listelement is empty
+                my $last_list_item = $parent_list->last_child; # we assume here that no listelement is empty
 
                 while(@{$last_list_item->children} > 0 &&
-                      $last_list_item->children->[-1]->isa(ListElement)) {
-                    my $sublist    = $last_list_item->children->[-1];
-                    if($sublist->children->[-1]->_indent > $indent) {
+                      $last_list_item->last_child->isa(ListElement)) {
+                    my $sublist    = $last_list_item->last_child;
+                    if($sublist->last_child->_indent > $indent) {
                         last;
                     }
                     $parent_list    = $sublist;
-                    $last_list_item = $parent_list->children->[-1];
+                    $last_list_item = $parent_list->last_child;
                 }
                 if($last_list_item->_indent < $indent) {
                     $parent_list = ListElement->new(

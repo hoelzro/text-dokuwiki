@@ -532,6 +532,8 @@ sub BUILD {
         handler => sub {
             my ( $parser ) = @_;
 
+            $parser->_finish_paragraph;
+
             my $last_child = $parser->current_node->last_child;
             my $parent_list;
 

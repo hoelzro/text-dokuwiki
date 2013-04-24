@@ -156,11 +156,11 @@ sub _parse_tree {
 }
 
 sub _extract_attributes {
-    my ( $element ) = @_;
+    my ( $element, $include_private ) = @_;
 
     my $meta = $element->meta;
 
-    my @attributes = grep { $_->name ne 'children' && $_->name ne 'parent' && $_->name !~ /^_/ } $meta->get_all_attributes;
+    my @attributes = grep { $_->name ne 'children' && $_->name ne 'parent' && ($include_private || $_->name !~ /^_/) } $meta->get_all_attributes;
     my %hash;
 
     foreach my $attr (@attributes) {

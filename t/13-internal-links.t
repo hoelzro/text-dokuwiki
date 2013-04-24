@@ -20,6 +20,4 @@ Paragraph
   Link { link => InternalLink->new(page_name => 'pagename', section_name => 'section', label => 'text') }
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

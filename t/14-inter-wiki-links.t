@@ -21,6 +21,4 @@ Paragraph
   Link { link => InterWikiLink->new(wiki => 'wp', page_name => 'Wiki', section_name => 'arbitrary_section', label => q{Wikipedia's Article on Wikis}) }
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

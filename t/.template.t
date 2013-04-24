@@ -12,6 +12,4 @@ END_DOKUWIKI
 my $tree = <<'END_TREE';
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

@@ -18,8 +18,6 @@ Paragraph
   Link { link => ExternalLink->new(uri => URI->new('https://google.com')) }
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;
 
 $text = <<'END_DOKUWIKI';
@@ -31,8 +29,6 @@ Paragraph
   Text 'Link Three: '
   Link { link => ExternalLink->new(uri => URI->new('www.google.com')) }
 END_TREE
-
-chomp $text;
 
 SKIP: {
     skip 'Schema-less bare links (www.google.com) are not implemented', 1;

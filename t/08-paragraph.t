@@ -17,8 +17,6 @@ Paragraph
   Text "I'm leaving soon!"
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;
 
 # XXX make sure that appropriate characters ('<' and '>', for example) are

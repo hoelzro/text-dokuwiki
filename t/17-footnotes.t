@@ -19,6 +19,4 @@ Paragraph
   Text ' footnotes!'
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

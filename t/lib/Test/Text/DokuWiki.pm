@@ -396,6 +396,7 @@ sub test_doc {
     my $pkg = caller();
 
     unless(eval { $doc->isa('Text::DokuWiki::Document') }) {
+        chomp $doc;
         my $doku = Text::DokuWiki->new;
            $doc  = $doku->parse($doc);
     }

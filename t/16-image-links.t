@@ -28,6 +28,4 @@ $link->link(ExternalLink->new(
     ),
 ));
 
-chomp $text;
-
 test_doc $text, $tree;

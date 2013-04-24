@@ -19,8 +19,6 @@ List { ordered => 0 }
   ListItem ' Another item'
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;
 
 $text = <<'END_DOKUWIKI';
@@ -28,8 +26,6 @@ $text = <<'END_DOKUWIKI';
   - The second item
   - Another item
 END_DOKUWIKI
-
-chomp $text;
 
 $tree = <<'END_TREE';
 List { ordered => 1 }
@@ -47,8 +43,6 @@ $text = <<'END_DOKUWIKI';
   * The second item
   * Another item
 END_DOKUWIKI
-
-chomp $text;
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
@@ -69,8 +63,6 @@ $text = <<'END_DOKUWIKI';
   - Second numbered item
   * Item 3
 END_DOKUWIKI
-
-chomp $text;
 
 $tree = <<'END_TREE';
 List { ordered => 0 }

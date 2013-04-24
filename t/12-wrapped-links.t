@@ -21,6 +21,4 @@ Paragraph
   Link { link => ExternalLink->new(uri => URI->new('http://google.com#section'), label => 'Google Section') }
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

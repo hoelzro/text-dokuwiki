@@ -34,6 +34,4 @@ Paragraph
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png'), alignment => 'center', caption => 'This is the caption' }
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

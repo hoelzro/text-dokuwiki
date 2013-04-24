@@ -13,6 +13,4 @@ Paragraph
   Text "This is\na forced newline"
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

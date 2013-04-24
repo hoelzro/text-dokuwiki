@@ -22,6 +22,4 @@ Heading { content => ' Heading Five ',  level => 5 }
 Heading { content => ' Heading Six ',   level => 6 }
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

@@ -17,6 +17,4 @@ Paragraph
   Link { link => WindowsShareLink->new(share => q{\\\\windows\\share}, label => 'with label') }
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

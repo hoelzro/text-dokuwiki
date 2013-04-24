@@ -15,6 +15,4 @@ Paragraph
   Text ' home!'
 END_TREE
 
-chomp $text;
-
 test_doc $text, $tree;

@@ -351,6 +351,11 @@ sub dump_tree {
     my ( $doc, $dumper, $indent_level ) = @_;
 
     unless($dumper) {
+        unless(eval { $doc->isa('Text::DokuWiki::Document') }) {
+            my $doku = Text::DokuWiki->new;
+               $doc  = $doku->parse($doc);
+        }
+
         $dumper = Data::Dumper->new([]);
         $dumper->Indent(0);
         $dumper->Terse(1);

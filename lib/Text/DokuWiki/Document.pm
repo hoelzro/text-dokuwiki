@@ -2,16 +2,7 @@ package Text::DokuWiki::Document;
 
 use Moose;
 
-# XXX unifying this with Element would be great
-has children => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
-    traits  => ['Array'],
-    default => sub { [] },
-    handles => {
-        append_child => 'push',
-    },
-);
+with 'Text::DokuWiki::Role::Parent';
 
 sub _is_textual {
     return 0;

@@ -2,15 +2,7 @@ package Text::DokuWiki::Element;
 
 use Moose;
 
-has children => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
-    traits  => ['Array'],
-    default => sub { [] },
-    handles => {
-        append_child => 'push',
-    },
-);
+with 'Text::DokuWiki::Role::Parent';
 
 has parent => (
     is       => 'ro',

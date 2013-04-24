@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -95,7 +95,31 @@ List { ordered => 0 }
   ListItem ' Third Item'
 END_TREE
 
-# XXX Are lists within paragraphs, or outside of them?
+test_doc $text, $tree;
+
+$text = <<'END_DOKUWIKI';
+Some text in a paragraph.
+  * A
+  * list
+  * of
+  * items
+More text.
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Paragraph
+  Text 'Some text in a paragraph.'
+List { ordered => 0 }
+  ListItem ' A'
+  ListItem ' list'
+  ListItem ' of'
+  ListItem ' items'
+Paragraph
+  Text "\nMore text."
+END_TREE
+
+test_doc $text, $tree;
+
 # XXX Test markup (like **this**) in list items
 # XXX Test unindented list items (they should be regular text)
 # XXX Test exceptional circumstances mentioned on https://www.dokuwiki.org/faq:lists

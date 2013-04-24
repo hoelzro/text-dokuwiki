@@ -406,16 +406,21 @@ sub test_doc {
     if(eval { $expected_tree->isa('Text::DokuWiki::Document') }) {
         ( $ok, $diag ) = _check_document($doc, $expected_tree);
     } else {
-        $expected_tree = _parse_tree($pkg, $expected_tree);
+        my $parsed_tree = _parse_tree($pkg, $expected_tree);
 
-        unless($expected_tree) {
+        unless($parsed_tree) {
             fail $name;
             return;
         }
-        ( $ok, $diag ) = _check_tree($doc, $expected_tree);
+        ( $ok, $diag ) = _check_tree($doc, $parsed_tree);
     }
 
-    ok($ok, $name) || diag($diag);
+    unless(ok($ok, $name)) {
+        diag($diag);
+        diag("expected tree:\n$expected_tree");
+        diag('got tree:');
+        dump_tree($doc);
+    }
 }
 
 1;

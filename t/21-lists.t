@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -131,13 +131,24 @@ END_TREE
 
 test_doc $text, $tree, 'Test unindented list items';
 
+$text = <<'END_DOKUWIKI';
+  * One
+   * Two (note, one space of indent)
+  * Three
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+List { ordered => 0 }
+  ListItem ' One'
+  ListItem ' Two (note, one space of indent)'
+  ListItem ' Three'
+END_TREE
+
+test_doc $text, $tree, 'Test that at least two spaces are required to increase list level';
+
 # XXX Test markup (like **this**) in list items
 # XXX Test exceptional circumstances mentioned on https://www.dokuwiki.org/faq:lists
 # XXX test with forced newlines (should allow multiple lines in a list item)
 # XXX test with code blocks
-# XXX what about this:
-#   * One
-#    * Two (note, *one* space of indent)
-#   * Three
 # XXX also this:
 #     * One (first item: four spaces indent)

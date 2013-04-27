@@ -1,0 +1,13 @@
+=head1 IDEAS
+
+=head2 Incremental parsing
+
+It would be nice to maintain a "live" parser object which would
+continue to accept input and update the tree without re-parsing
+the whole document.
+
+=head2 Event-style API
+
+Think SAX.
+
+=cut

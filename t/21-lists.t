@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -171,7 +171,17 @@ END_TREE
 
 test_doc $text, $tree, 'Test that four spaces indent only introduces a single list level';
 
+$text = <<'END_DOKUWIKI';
+  * Contains\\newline
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+List { ordered => 0 }
+  ListItem "Contains\nnewline"
+END_TREE
+
+test_doc $text, $tree, 'Test forced newline in list item';
+
 # XXX Test markup (like **this**) in list items
 # XXX Test exceptional circumstances mentioned on https://www.dokuwiki.org/faq:lists
-# XXX test with forced newlines (should allow multiple lines in a list item)
 # XXX test with code blocks

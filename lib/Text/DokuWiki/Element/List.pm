@@ -13,6 +13,15 @@ has _indent => (
     is => 'ro',
 );
 
+=pod
+before append_child => sub {
+    my ( $self, $child ) = @_;
+
+    assert($child->isa(ListItemElement));
+    assert(!$self->last_child || $child->_indent == $self->last_child->_indent)
+};
+=cut
+
 1;
 
 __END__

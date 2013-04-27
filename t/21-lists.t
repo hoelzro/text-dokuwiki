@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -120,8 +120,18 @@ END_TREE
 
 test_doc $text, $tree, 'Test interleaving of lists and paragraphs';
 
+$text = <<'END_DOKUWIKI';
+* Unindented list itemy thing
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Paragraph
+  Text '* Unindented list itemy thing'
+END_TREE
+
+test_doc $text, $tree, 'Test unindented list items';
+
 # XXX Test markup (like **this**) in list items
-# XXX Test unindented list items (they should be regular text)
 # XXX Test exceptional circumstances mentioned on https://www.dokuwiki.org/faq:lists
 # XXX Test nested an unordered list in an ordered list
 # XXX should we mark orderedness with an attribute? or with the class?

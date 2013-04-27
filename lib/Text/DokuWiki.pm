@@ -543,6 +543,8 @@ sub BUILD {
             $indent     =~ s/^\n//; # for some reason, we sometimes have a leading newline
             $indent     = length($indent);
 
+            $indent-- if $indent % 2 == 1; # we only care about increments of two spaces or more
+
             if($last_child && $last_child->isa(ListElement)) {
                 $parent_list       = $last_child;
                 my $last_list_item = $parent_list->last_child; # we assume here that no listelement is empty

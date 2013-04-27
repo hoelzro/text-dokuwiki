@@ -133,8 +133,6 @@ test_doc $text, $tree, 'Test unindented list items';
 
 # XXX Test markup (like **this**) in list items
 # XXX Test exceptional circumstances mentioned on https://www.dokuwiki.org/faq:lists
-# XXX Test nested an unordered list in an ordered list
-# XXX should we mark orderedness with an attribute? or with the class?
 # XXX test with forced newlines (should allow multiple lines in a list item)
 # XXX test with code blocks
 # XXX what about this:

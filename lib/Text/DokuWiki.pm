@@ -188,7 +188,7 @@ sub _add_parser_rule {
 
     my %copy = %params;
 
-    my @required = qw{name pattern handler};
+    my @required = qw{name pattern handler state};
     my @optional = qw{before after};
 
     delete @copy{@optional}; # we'll process these properly later
@@ -358,6 +358,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'section_header',
+        state   => 'top',
         pattern => $HEADER_RE,
         handler => sub {
             my ( $parser, $match ) = @_;
@@ -371,30 +372,35 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'bold',
+        state   => 'inline',
         pattern => qr/[*][*]/,
         handler => $self->_self_closing_element(BoldElement),
     );
 
     $self->_add_parser_rule(
         name    => 'italic',
+        state   => 'inline',
         pattern => qr{//},
         handler => $self->_self_closing_element(ItalicElement),
     );
 
     $self->_add_parser_rule(
         name    => 'underlined',
+        state   => 'inline',
         pattern => qr/__/,
         handler => $self->_self_closing_element(UnderlinedElement),
     );
 
     $self->_add_parser_rule(
         name    => 'monospace',
+        state   => 'inline',
         pattern => qr/''/,
         handler => $self->_self_closing_element(MonospaceElement),
     );
 
     $self->_add_parser_rule(
-        name    => 'paragraph',
+        name    => 'end_paragraph',
+        state   => 'paragraph',
         pattern => qr/\n\n/,
         handler => sub {
             my ( $parser ) = @_;
@@ -405,6 +411,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'forced_newline',
+        state   => 'inline',
         pattern => qr{\\\\[\s\n]},
         handler => sub {
             my ( $parser ) = @_;
@@ -419,6 +426,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'open_pseudo_html',
+        state   => 'inline',
         pattern => $OPEN_PSEUDO_HTML_RE,
         handler => sub {
             my ( $parser ) = @_;
@@ -427,8 +435,10 @@ sub BUILD {
         },
     );
 
+    # XXX add a state for this?
     $self->_add_parser_rule(
         name => 'close_pseudo_html',
+        state => 'inline',
         pattern => $CLOSE_PSEUDO_HTML_RE,
         handler => sub {
             my ( $parser ) = @_;
@@ -439,6 +449,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'external_link_uri',
+        state   => 'inline',
         pattern => $RE{URI}{HTTP}{-scheme => qr/https?/},
         handler => sub {
             my ( $parser, $match ) = @_;
@@ -455,6 +466,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'external_link_mail',
+        state   => 'inline',
         pattern => qr/<(?<address>$RE{Email}{Address})>/,
         handler => sub {
             my ( $parser, $match ) = @_;
@@ -469,6 +481,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'internal_link',
+        state   => 'inline',
         pattern => $INTERNAL_LINK_RE,
         handler => sub {
             my ( $parser, $match ) = @_;
@@ -484,6 +497,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'image',
+        state   => 'inline',
         pattern => $IMAGE_RE,
         handler => sub {
             my ( $parser, $match ) = @_;
@@ -503,6 +517,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'footnotes',
+        state   => 'inline',
         pattern => qr/[(][(](?<footnote>.*?)[)][)]/,
         handler => sub {
             my ( $parser, $match ) = @_;
@@ -517,6 +532,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'notoc',
+        state   => 'top',
         pattern => qr/~~NOTOC~~/,
         handler => sub {
             my ( $parser ) = @_;
@@ -528,6 +544,7 @@ sub BUILD {
 
     $self->_add_parser_rule(
         name    => 'lists',
+        state   => 'top',
         pattern => qr/^(?<indent>\s{2,})(?<list_char>[*-])(?<list_item_content>[^\n]+)$/m,
         handler => sub {
             my ( $parser ) = @_;

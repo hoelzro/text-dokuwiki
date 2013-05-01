@@ -10,4 +10,31 @@ the whole document.
 
 Think SAX.
 
+=head2 Streaming input
+
+It would be nice that to go with the L<Incremental Parsing|/"Incremental Parsing">
+and L<Event-style API|/"Event-style API"> ideas, we allowed consumers of the API
+to provide input piecemeal, instead of as one giant string.
+
+=head2 is_pure
+
+Since this module will mainly be used to output HTML for a webpage, it would be nice
+if we had the ability to mark a document as "pure" or "deterministic" so we can cache
+the crap out of it.
+
+=head2 Memento Role for a constantly-changing document
+
+When creating a new document, most editing B<should> happen towards the end.  If the document
+before the current edit point hasn't changed, we can benefit from
+L<Incremental Parsing|/"Incremental Parsing"> to update the document quickly.
+
+However, when updating a document (or making changes in the initial draft before creating it),
+one often updates the document in the middle.  The wisdom of incremental parsing still applies;
+we don't need to re-parse any text that comes before where we made our edit.  However,
+incremental parsing itself only handles the case when there's no old data after the edit point.
+
+So instead of reparsing the entire document, it would be nice to tell the parser "Hey, back up
+until line X, and then start parsing this document again".  It's kind of like the memento pattern.
+It would be nice to have this implemented as a role.
+
 =cut

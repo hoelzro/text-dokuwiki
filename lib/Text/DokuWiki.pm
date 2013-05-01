@@ -587,10 +587,10 @@ sub BUILD {
         },
     );
 
+    # XXX enter into a state
     $self->_add_parser_rule(
         name    => 'lists',
-        state   => 'inline',
-        #state   => 'top',
+        state   => 'top',
         pattern => qr/^(?<indent>\s{2,})(?<list_char>[*-])(?<list_item_content>[^\n]+)$/m,
         handler => sub {
             my ( $parser ) = @_;

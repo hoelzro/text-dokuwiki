@@ -102,7 +102,17 @@ has current_node => (
 
 has parser_rules => (
     is      => 'ro',
-    default => sub { [] },
+    default => sub { {} },
+);
+
+has state_augmentations => (
+    is      => 'ro',
+    default => sub { {} },
+);
+
+has state_stack => (
+    is      => 'ro',
+    default => sub { ['top'] },
 );
 
 sub _create_node {
@@ -125,6 +135,7 @@ sub _append_child {
     return $child;
 }
 
+# XXX instead of this, shouldn't we just append the previous child if it's a TextElement?
 sub _pop_text_node {
     my ( $self ) = @_;
 
@@ -140,6 +151,7 @@ sub _pop_text_node {
 sub _down {
     my ( $self, $child, %params ) = @_;
 
+    # XXX do we want to pop the text node?
     $self->_pop_text_node;
     $child = $self->_append_child($child, %params);
     $self->current_node($child);
@@ -204,7 +216,9 @@ sub _add_parser_rule {
         croak "invalid argument '$remaining[0]' passed to _add_parser_rule";
     }
 
-    push @{$self->parser_rules}, \%params;
+    my $state = delete $params{'state'};
+
+    push @{$self->parser_rules->{$state}}, \%params;
 }
 
 sub _has_ancestor {
@@ -227,7 +241,7 @@ sub _self_closing_element {
     return sub {
         my ( $parser ) = @_;
 
-        $parser->_requires_paragraph;
+        # XXX do this with state?
         if($parser->_has_ancestor($node_class)) {
             $parser->_up;
         } else {
@@ -342,34 +356,50 @@ sub _parse_image {
     );
 }
 
-sub _requires_paragraph {
+sub _push_state {
+    my ( $self, $state ) = @_;
+
+    push @{$self->state_stack}, $state;
+}
+
+sub _pop_state {
     my ( $self ) = @_;
 
-    unless($self->_has_ancestor(ParagraphElement)) {
-        while(! $self->current_node->isa('Text::DokuWiki::Document')) {
-            $self->_up;
-        }
-        $self->_down(ParagraphElement);
-    }
+    pop @{$self->state_stack};
+}
+
+sub _current_state {
+    my ( $self ) = @_;
+
+    return $self->state_stack->[-1];
+}
+
+sub _get_parser_rules {
+    my ( $self ) = @_;
+
+    my @rules;
+
+    my $state = $self->_current_state;
+    my $augmentations = $self->state_augmentations->{$state};
+
+    return [
+        @{$self->parser_rules->{$state}},
+        map {
+            @{$self->parser_rules->{$_}}
+        } @$augmentations
+    ];
+}
+
+sub _augment_state {
+    my ( $self, $state, @augmentations ) = @_;
+
+    push @{$self->state_augmentations->{$state}}, @augmentations;
 }
 
 sub BUILD {
     my ( $self ) = @_;
 
-    $self->_add_parser_rule(
-        name    => 'section_header',
-        state   => 'top',
-        pattern => $HEADER_RE,
-        handler => sub {
-            my ( $parser, $match ) = @_;
-            $parser->_finish_paragraph;
-            $parser->_append_child(HeadingElement,
-                content => $+{'header_content'},
-                level   => ($MAX_HEADER_LEVEL + 1) - length($+{'header_level'}),
-            );
-        },
-    );
-
+    ### Inline Rules
     $self->_add_parser_rule(
         name    => 'bold',
         state   => 'inline',
@@ -399,27 +429,16 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'end_paragraph',
-        state   => 'paragraph',
-        pattern => qr/\n\n/,
-        handler => sub {
-            my ( $parser ) = @_;
-
-            $parser->_finish_paragraph;
-        },
-    );
-
-    $self->_add_parser_rule(
         name    => 'forced_newline',
         state   => 'inline',
         pattern => qr{\\\\[\s\n]},
         handler => sub {
             my ( $parser ) = @_;
 
-            $parser->_requires_paragraph;
             unless($self->current_node->_is_textual) {
                 $self->_down(TextElement);
             }
+            # XXX should we represent this with a link break element object?
             $self->_append_content("\n");
         },
     );
@@ -454,7 +473,6 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
-            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child(LinkElement,
                 link => ExternalLink->new(
@@ -471,7 +489,6 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
-            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child(EmailAddressElement,
                 content => $+{'address'},
@@ -486,7 +503,6 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
-            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child($parser->_parse_square_bracket_link(
                 link  => $+{'link'},
@@ -502,7 +518,6 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
-            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child($parser->_parse_image(
                 right_align_padding => $+{'right_align_padding'},
@@ -522,7 +537,6 @@ sub BUILD {
         handler => sub {
             my ( $parser, $match ) = @_;
 
-            $parser->_requires_paragraph;
             $parser->_pop_text_node;
             $parser->_append_child(FootnoteElement,
                 content => $+{'footnote'},
@@ -530,6 +544,24 @@ sub BUILD {
         },
     );
 
+    ### Paragraph Rules
+
+    # XXX this has to be the first rule in paragraph
+    $self->_add_parser_rule(
+        name    => 'end_paragraph',
+        state   => 'paragraph',
+        pattern => qr/\n\n/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_finish_paragraph;
+            $parser->_pop_state;
+        },
+    );
+
+    ### Top Level Rules
+
+    # XXX do we need these rules in the paragraph state to properly do them?
     $self->_add_parser_rule(
         name    => 'notoc',
         state   => 'top',
@@ -537,14 +569,28 @@ sub BUILD {
         handler => sub {
             my ( $parser ) = @_;
 
-            $parser->_finish_paragraph;
             $parser->_append_child(NoTOCElement);
         },
     );
 
     $self->_add_parser_rule(
-        name    => 'lists',
+        name    => 'section_header',
         state   => 'top',
+        pattern => $HEADER_RE,
+        handler => sub {
+            my ( $parser, $match ) = @_;
+            $parser->_finish_paragraph;
+            $parser->_append_child(HeadingElement,
+                content => $+{'header_content'},
+                level   => ($MAX_HEADER_LEVEL + 1) - length($+{'header_level'}),
+            );
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'lists',
+        state   => 'inline',
+        #state   => 'top',
         pattern => qr/^(?<indent>\s{2,})(?<list_char>[*-])(?<list_item_content>[^\n]+)$/m,
         handler => sub {
             my ( $parser ) = @_;
@@ -608,6 +654,20 @@ sub BUILD {
             $parent_list->append_child($child);
         }
     );
+
+    $self->_add_parser_rule(
+        name    => 'start_paragraph',
+        state   => 'top',
+        pattern => qr//,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_down(ParagraphElement);
+            $parser->_push_state('paragraph');
+        },
+    );
+
+    $self->_augment_state(paragraph => 'inline');
 }
 
 sub parse {
@@ -624,7 +684,10 @@ sub parse {
     while($text) {
         # XXX use \G?
         # XXX compile each component regex into a single regex?
-        foreach my $parser_rule (@{ $self->parser_rules }) {
+        # XXX I'll probably want to inline this
+        my $rules = $self->_get_parser_rules;
+
+        foreach my $parser_rule (@$rules) {
             my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
 
             if($text =~ /\A$pattern/p) {
@@ -634,16 +697,20 @@ sub parse {
             }
         }
 
-        if($text =~ /\A./sp) {
-            $self->_requires_paragraph;
-            unless($self->current_node->_is_textual) {
-                $self->_down(TextElement);
+        #if($self->_current_state eq 'inline') {
+            # XXX move this into inline rules
+            if($text =~ /\A./sp) {
+                unless($self->current_node->_is_textual) {
+                    $self->_down(TextElement);
+                }
+                $self->_append_content(${^MATCH});
+                $text = ${^POSTMATCH};
+            } else {
+                croak "Confused: '$text'";
             }
-            $self->_append_content(${^MATCH});
-            $text = ${^POSTMATCH};
-        } else {
-            croak "Confused: '$text'";
-        }
+        #} else {
+            #croak "Confused: '$text'";
+        #}
     }
 
     return $doc;

@@ -213,6 +213,7 @@ sub _add_parser_rule {
 
     delete @copy{@optional}; # we'll process these properly later
 
+    # XXX check that name is unique?
     foreach my $param (@required) {
         unless(exists $copy{$param}) {
             croak "argument '$param' required";

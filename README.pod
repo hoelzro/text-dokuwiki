@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Text::DokuWiki
+Text::DokuWiki - A parser for DokuWiki markup language (https://www.dokuwiki.org/)
 
 =head1 VERSION
 
@@ -40,7 +40,17 @@ I don't know if we'll ever support PHP code blocks, though.
 
 =head1 SEE ALSO
 
+=over 4
+
+=item *
+
 L<http://dokuwiki.org>
+
+=item *
+
+L<http://dokuwiki.org/wiki:syntax>
+
+=back
 
 =head1 AUTHOR
 

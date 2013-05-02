@@ -382,7 +382,11 @@ sub dump_tree {
     $dumper->Values([ $attrs ]);
     $dumper->Reset;
 
-    diag($indent . $class . ' ' . $dumper->Dump);
+    if(defined $attrs) {
+        diag($indent . $class . ' ' . $dumper->Dump);
+    } else {
+        diag($indent . $class);
+    }
     my $children = $doc->can('children') ? $doc->children : [];
 
     foreach my $child (@$children){

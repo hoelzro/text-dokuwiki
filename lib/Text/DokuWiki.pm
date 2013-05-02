@@ -695,6 +695,8 @@ sub parse {
     my $doc = Text::DokuWiki::Document->new;
     $self->current_node($doc);
 
+    # XXX normalize newlines?
+
     TEXT_LOOP:
     while($text) {
         # XXX use \G?
@@ -717,6 +719,9 @@ sub parse {
 
         #if($self->_current_state eq 'inline') {
             # XXX move this into inline rules
+            # XXX I think there's probably a more efficient way to go about this;
+            #     namely, finding all of the possible "next chars" for the paragraph
+            #     state and matching an arbitrarily long sequence of *not* those
             if($text =~ /\A./sp) {
                 unless($self->current_node->_is_textual) {
                     $self->_down(TextElement);

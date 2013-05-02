@@ -603,72 +603,83 @@ sub BUILD {
         },
     );
 
-    # XXX enter into a state
     $self->_add_parser_rule(
-        name    => 'lists',
+        name    => 'start_list',
         state   => 'top',
-        pattern => qr/^(?<indent>\s{2,})(?<list_char>[*-])(?<list_item_content>[^\n]+)$/m,
+        pattern => qr/^(?<indent>\s{2,})(?<list_char>[*-])/,
         handler => sub {
             my ( $parser ) = @_;
 
-            $parser->_finish_paragraph;
-
-            my $last_child = $parser->current_node->last_child;
-            my $parent_list;
-
             my $ordered = ($+{'list_char'} eq '-') ? 1 : 0;
-            my $content = $+{'list_item_content'};
             my $indent  = $+{'indent'};
             $indent     =~ s/^\n//; # for some reason, we sometimes have a leading newline
             $indent     = length($indent);
 
             $indent-- if $indent % 2 == 1; # we only care about increments of two spaces or more
 
-            if($last_child && $last_child->isa(ListElement)) {
-                $parent_list       = $last_child;
-                my $last_list_item = $parent_list->last_child; # we assume here that no listelement is empty
+            # XXX I'm tempted to have last child return a "dummy element" for failure
+            my $list = $parser->current_node->last_child;
 
-                while($last_list_item->isa(ListElement)) {
-                    my $sublist    = $last_list_item;
-                    if($sublist->last_child->_indent > $indent) {
-                        last;
+            if($list && $list->isa(ListElement)) {
+                while($list->_indent < $indent) {
+                    my $last_child = $list->last_child;
+                    if($last_child && $last_child->isa(ListElement)) {
+                        $list = $last_child;
+                    } else {
+                        my $sublist = $parser->_create_node(ListElement,
+                            ordered => $ordered,
+                            _indent => $indent,
+                            parent  => $list,
+                        );
+                        $list->append_child($sublist);
+                        $list = $sublist;
                     }
-                    $parent_list    = $sublist;
-                    $last_list_item = $parent_list->last_child;
                 }
-                if($last_list_item->_indent < $indent) {
-                    my $super_list = $parent_list;
-                    $parent_list = ListElement->new(
+                if($list->ordered != $ordered) {
+                    $list = $parser->_create_node(ListElement,
                         ordered => $ordered,
-                        parent  => $super_list,
-                        _indent  => $last_list_item->_indent,
+                        _indent => $indent,
+                        parent  => $list->parent,
                     );
-                    $super_list->append_child($parent_list);
-                } elsif($ordered != $parent_list->ordered) {
-                    my $superlist = $parent_list->parent;
-
-                    $parent_list = ListElement->new(
-                        ordered => $ordered,
-                        parent  => $superlist,
-                        _indent  => $last_list_item->_indent,
-                    );
-                    $superlist->append_child($parent_list);
+                    $list->parent->append_child($list);
                 }
             } else {
-                $parent_list = $parser->_append_child(ListElement,
+                $list = $parser->_append_child(ListElement,
                     ordered => $ordered,
-                    _indent => 0,
+                    _indent => $indent,
                 );
             }
 
-            my $child = ListItemElement->new(
-                content => $content,
-                _indent => $indent,
-                parent  => $parent_list,
-            );
+            $self->current_node($list);
+            $self->_down(ListItemElement);
 
-            $parent_list->append_child($child);
-        }
+            $parser->_push_state('list');
+        },
+    );
+
+    $self->_add_parser_rule(
+        name => 'end_list',
+        state => 'list',
+        pattern => qr/\n/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            my $topmost_list;
+
+            # find the enclosing list...
+            my $node = $parser->current_node;
+            while($node) {
+                if($node->isa(ListElement)) {
+                    $topmost_list = $node;
+                }
+                $node = $node->parent;
+            }
+            # XXX assert defined($topmost_list);
+
+            # ...and go to its parent
+            $parser->current_node($topmost_list->parent);
+            $self->_pop_state;
+        },
     );
 
     $self->_add_parser_rule(
@@ -716,6 +727,7 @@ sub BUILD {
     );
 
     $self->_augment_state(paragraph => 'inline');
+    $self->_augment_state(list => 'inline');
 }
 
 sub parse {

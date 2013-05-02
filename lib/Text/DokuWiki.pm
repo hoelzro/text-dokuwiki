@@ -227,6 +227,8 @@ sub _add_parser_rule {
 
     my $state = delete $params{'state'};
 
+    $params{'pattern'} = qr/$params{'pattern'}/;
+
     push @{$self->parser_rules->{$state}}, \%params;
 }
 

@@ -14,9 +14,12 @@ END_DOKUWIKI
 
 my $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem ' This is a list'
-  ListItem ' The second item'
-  ListItem ' Another item'
+  ListItem
+    Text ' This is a list'
+  ListItem
+    Text ' The second item'
+  ListItem
+    Text ' Another item'
 END_TREE
 
 test_doc $text, $tree, 'Test a basic list of unordered items';
@@ -29,9 +32,12 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 1 }
-  ListItem ' This is a list'
-  ListItem ' The second item'
-  ListItem ' Another item'
+  ListItem
+    Text ' This is a list'
+  ListItem
+    Text ' The second item'
+  ListItem
+    Text ' Another item'
 END_TREE
 
 test_doc $text, $tree, 'Test a basic list of ordered items';
@@ -46,12 +52,17 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem ' This is a list'
+  ListItem
+    Text ' This is a list'
   List { ordered => 0 }
-    ListItem ' This is a nested sublist'
-    ListItem ' Second item of the nested sublist'
-  ListItem ' The second item'
-  ListItem ' Another item'
+    ListItem
+      Text ' This is a nested sublist'
+    ListItem
+      Text ' Second item of the nested sublist'
+  ListItem
+    Text ' The second item'
+  ListItem
+    Text ' Another item'
 END_TREE
 
 test_doc $text, $tree, 'Test a nested list';
@@ -66,13 +77,18 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem ' This is a list'
-  ListItem ' Item 2'
+  ListItem
+    Text ' This is a list'
+  ListItem
+    Text ' Item 2'
 List { ordered => 1 }
-  ListItem ' First numbered item'
-  ListItem ' Second numbered item'
+  ListItem
+    Text ' First numbered item'
+  ListItem
+    Text ' Second numbered item'
 List { ordered => 0 }
-  ListItem ' Item 3'
+  ListItem
+    Text ' Item 3'
 END_TREE
 
 test_doc $text, $tree, 'Test a mixture of ordered/unordered items';
@@ -87,12 +103,17 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem ' First Item'
-  ListItem ' Second Item'
+  ListItem
+    Text ' First Item'
+  ListItem
+    Text ' Second Item'
   List { ordered => 1 }
-    ListItem ' Numbered Sublist!'
-    ListItem ' More numbered stuff!'
-  ListItem ' Third Item'
+    ListItem
+      Text ' Numbered Sublist!'
+    ListItem
+      Text ' More numbered stuff!'
+  ListItem
+    Text ' Third Item'
 END_TREE
 
 test_doc $text, $tree, 'Test an ordered sublist under an unordered list';
@@ -110,10 +131,14 @@ $tree = <<'END_TREE';
 Paragraph
   Text 'Some text in a paragraph.'
 List { ordered => 0 }
-  ListItem ' A'
-  ListItem ' list'
-  ListItem ' of'
-  ListItem ' items'
+  ListItem
+    Text ' A'
+  ListItem
+    Text ' list'
+  ListItem
+    Text ' of'
+  ListItem
+    Text ' items'
 Paragraph
   Text "More text."
 END_TREE
@@ -139,9 +164,12 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem ' One'
-  ListItem ' Two (note, one space of indent)'
-  ListItem ' Three'
+  ListItem
+    Text ' One'
+  ListItem
+    Text ' Two (note, one space of indent)'
+  ListItem
+    Text ' Three'
 END_TREE
 
 test_doc $text, $tree, 'Test that at least two spaces are required to increase list level';
@@ -152,7 +180,8 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem ' One'
+  ListItem
+    Text ' One'
 END_TREE
 
 test_doc $text, $tree, 'Test that four spaces outside of a list only introduces one level';
@@ -164,9 +193,11 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem ' One'
+  ListItem
+    Text ' One'
   List { ordered => 0 }
-    ListItem ' Two'
+    ListItem
+      Text ' Two'
 END_TREE
 
 test_doc $text, $tree, 'Test that four spaces indent only introduces a single list level';
@@ -177,7 +208,8 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
-  ListItem "Contains\nnewline"
+  ListItem
+    Text "Contains\nnewline"
 END_TREE
 
 test_doc $text, $tree, 'Test forced newline in list item';

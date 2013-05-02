@@ -115,7 +115,7 @@ List { ordered => 0 }
   ListItem ' of'
   ListItem ' items'
 Paragraph
-  Text "\nMore text."
+  Text "More text."
 END_TREE
 
 test_doc $text, $tree, 'Test interleaving of lists and paragraphs';

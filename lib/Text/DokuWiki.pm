@@ -121,8 +121,8 @@ sub _create_node {
     my ( $self, $node_class, %params ) = @_;
 
     return $node_class->new(
-        %params,
         parent => $self->current_node,
+        %params,
     );
 }
 

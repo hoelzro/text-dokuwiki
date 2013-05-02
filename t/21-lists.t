@@ -203,13 +203,13 @@ END_TREE
 test_doc $text, $tree, 'Test that four spaces indent only introduces a single list level';
 
 $text = <<'END_DOKUWIKI';
-  * Contains\\newline
+  * Contains\\ newline
 END_DOKUWIKI
 
 $tree = <<'END_TREE';
 List { ordered => 0 }
   ListItem
-    Text "Contains\nnewline"
+    Text " Contains\nnewline"
 END_TREE
 
 test_doc $text, $tree, 'Test forced newline in list item';

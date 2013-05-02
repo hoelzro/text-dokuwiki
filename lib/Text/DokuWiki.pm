@@ -33,6 +33,8 @@ use aliased 'Text::DokuWiki::Link::Internal'     => 'InternalLink';
 use aliased 'Text::DokuWiki::Link::InterWiki'    => 'InterWikiLink';
 use aliased 'Text::DokuWiki::Link::WindowsShare' => 'WindowsShareLink';
 
+my $IS_DEBUGGING = 0;
+
 my $MAX_HEADER_LEVEL = 6;
 
 my $HEADER_RE = qr{
@@ -133,6 +135,12 @@ sub _append_child {
 
     $self->current_node->append_child($child);
     return $child;
+}
+
+sub _diag {
+    my ( $self, $message ) = @_;
+
+    print STDERR "# $message\n";
 }
 
 # XXX instead of this, shouldn't we just append the previous child if it's a TextElement?
@@ -359,11 +367,18 @@ sub _parse_image {
 sub _push_state {
     my ( $self, $state ) = @_;
 
+    $self->_diag("entering state $state") if $IS_DEBUGGING;
+
     push @{$self->state_stack}, $state;
 }
 
 sub _pop_state {
     my ( $self ) = @_;
+
+    if($IS_DEBUGGING) {
+        my $state = $self->_current_state;
+        $self->_diag("leaving state $state");
+    }
 
     pop @{$self->state_stack};
 }
@@ -691,6 +706,9 @@ sub parse {
             my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
 
             if($text =~ /\A$pattern/p) {
+                if($IS_DEBUGGING) {
+                    $self->_diag('text matched pattern ' . $parser_rule->{'name'});
+                }
                 $handler->($self, ${^MATCH});
                 $text = ${^POSTMATCH};
                 next TEXT_LOOP;

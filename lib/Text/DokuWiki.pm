@@ -565,7 +565,7 @@ sub BUILD {
     $self->_add_parser_rule(
         name    => 'end_paragraph',
         state   => 'paragraph',
-        pattern => qr/\n\n/,
+        pattern => qr/\n/,
         handler => sub {
             my ( $parser ) = @_;
 
@@ -671,13 +671,45 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
+        name    => 'close_paragraph',
+        state   => 'top',
+        pattern => qr/\n/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            my $last_child = $parser->current_node->last_child;
+
+            if($last_child && $last_child->isa(ParagraphElement)) {
+                $last_child->_close;
+            }
+        },
+    );
+
+    $self->_add_parser_rule(
         name    => 'start_paragraph',
         state   => 'top',
         pattern => qr//,
         handler => sub {
             my ( $parser ) = @_;
 
-            $parser->_down(ParagraphElement);
+            my $last_child = $parser->current_node->last_child;
+
+            if($last_child && $last_child->isa(ParagraphElement) && !$last_child->_is_closed) {
+                my $paragraph = $last_child;
+                $parser->current_node($paragraph);
+                $last_child = $paragraph->last_child;
+                if($last_child && $last_child->_is_textual) {
+                    $last_child->_append_content("\n");
+                } else {
+                    $last_child = $self->_append_child(TextElement,
+                        content => "\n",
+                    );
+                }
+                $parser->current_node($last_child);
+            } else {
+                $parser->_down(ParagraphElement);
+            }
+
             $parser->_push_state('paragraph');
         },
     );

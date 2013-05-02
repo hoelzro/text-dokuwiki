@@ -37,4 +37,10 @@ So instead of reparsing the entire document, it would be nice to tell the parser
 until line X, and then start parsing this document again".  It's kind of like the memento pattern.
 It would be nice to have this implemented as a role.
 
+=head2 Test for cyclic references
+
+We need to make sure we handle parent-child relationships properly.
+
+=head2 Add highlighting for tests to show what's wrong with the structure
+
 =cut

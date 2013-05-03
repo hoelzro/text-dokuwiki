@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -214,6 +214,19 @@ END_TREE
 
 test_doc $text, $tree, 'Test forced newline in list item';
 
-# XXX Test markup (like **this**) in list items
+$text = <<'END_DOKUWIKI';
+  * Here's some **great** text
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+List { ordered => 0 }
+  ListItem
+    Text q{ Here's some }
+    Bold 'great'
+    Text ' text'
+END_TREE
+
+test_doc $text, $tree, 'Test markup in list item';
+
 # XXX Test exceptional circumstances mentioned on https://www.dokuwiki.org/faq:lists
 # XXX test with code blocks

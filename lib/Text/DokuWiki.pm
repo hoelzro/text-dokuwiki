@@ -620,13 +620,12 @@ sub BUILD {
 
             $indent-- if $indent % 2 == 1; # we only care about increments of two spaces or more
 
-            # XXX I'm tempted to have last child return a "dummy element" for failure
             my $list = $parser->current_node->last_child;
 
-            if($list && $list->isa(ListElement)) {
+            if($list->isa(ListElement)) {
                 while($list->_indent < $indent) {
                     my $last_child = $list->last_child;
-                    if($last_child && $last_child->isa(ListElement)) {
+                    if($last_child->isa(ListElement)) {
                         $list = $last_child;
                     } else {
                         my $sublist = $parser->_create_node(ListElement,
@@ -694,7 +693,7 @@ sub BUILD {
 
             my $last_child = $parser->current_node->last_child;
 
-            if($last_child && $last_child->isa(ParagraphElement)) {
+            if($last_child->isa(ParagraphElement)) {
                 $last_child->_close;
             }
         },
@@ -726,11 +725,11 @@ sub BUILD {
 
             my $last_child = $parser->current_node->last_child;
 
-            if($last_child && $last_child->isa(ParagraphElement) && !$last_child->_is_closed) {
+            if($last_child->isa(ParagraphElement) && !$last_child->_is_closed) {
                 my $paragraph = $last_child;
                 $parser->current_node($paragraph);
                 $last_child = $paragraph->last_child;
-                if($last_child && $last_child->_is_textual) {
+                if($last_child->_is_textual) {
                     $last_child->_append_content("\n");
                 } else {
                     $last_child = $self->_append_child(TextElement,

@@ -4,6 +4,8 @@ package Text::DokuWiki::Role::Parent;
 ## use critic (RequireUseStrict)
 use Moose::Role;
 
+require Text::DokuWiki::Element::Dummy;
+
 has children => (
     is      => 'ro',
     isa     => 'ArrayRef',
@@ -14,11 +16,13 @@ has children => (
     },
 );
 
+my $dummy_child = Text::DokuWiki::Element::Dummy->new;
+
 sub last_child {
     my ( $self ) = @_;
 
     my $children = $self->children;
-    return @$children > 0 ? $children->[-1] : undef;
+    return @$children > 0 ? $children->[-1] : $dummy_child;
 }
 
 1;

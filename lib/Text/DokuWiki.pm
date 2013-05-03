@@ -11,6 +11,7 @@ use Regexp::Common qw(Email::Address URI);
 use Text::DokuWiki::Document;
 
 use aliased 'Text::DokuWiki::Element::Bold'             => 'BoldElement';
+use aliased 'Text::DokuWiki::Element::Code'             => 'CodeElement';
 use aliased 'Text::DokuWiki::Element::Deleted'          => 'DeletedElement';
 use aliased 'Text::DokuWiki::Element::EmailAddress'     => 'EmailAddressElement';
 use aliased 'Text::DokuWiki::Element::Footnote'         => 'FootnoteElement';
@@ -606,6 +607,20 @@ sub BUILD {
         },
     );
 
+    ### Code Block Rules
+    $self->_add_parser_rule(
+        name    => 'end_code_block',
+        state   => 'code_block',
+        pattern => qr/\n/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_pop_text_node;
+            $parser->_up;
+            $parser->_pop_state;
+        },
+    );
+
     ### Top Level Rules
 
     # XXX do we need these rules in the paragraph state to properly do them?
@@ -741,6 +756,38 @@ sub BUILD {
                 parent  => $quote,
                 content => $+{'content'},
             ));
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'code_block',
+        state   => 'top',
+        pattern => qr/^  /,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            my $last_child = $parser->current_node->last_child;
+
+            # XXX this is a re-occurring pattern with top level stuff...
+            if($last_child->isa(CodeElement)) {
+                my $code = $last_child;
+                $parser->current_node($code);
+                $last_child = $code->last_child;
+                # XXX if _append_content were defined to do this for
+                #     "non-textual" elements, the code could be clearer...
+                if($last_child->_is_textual) {
+                    $last_child->_append_content("\n");
+                } else {
+                    $last_child = $self->_append_child(TextElement,
+                        content => "\n",
+                    );
+                }
+                $parser->current_node($last_child);
+            } else {
+                $parser->_down(CodeElement);
+            }
+
+            $parser->_push_state('code_block');
         },
     );
 

@@ -68,6 +68,10 @@ this could be bad for extensions)
 
 Checking the state stack
 
+=item *
+
+Making sure all states have parser rules
+
 =back
 
 =head2 Give all tests names

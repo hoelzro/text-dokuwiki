@@ -70,6 +70,8 @@ Checking the state stack
 
 =back
 
+=head2 Give all tests names
+
 =head1 TESTS
 
 =head2 Test for cyclic references

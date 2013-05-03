@@ -4,9 +4,6 @@ use Moose;
 
 extends 'Text::DokuWiki::Element';
 
-has _indent => (
-    is => 'ro',
-);
 
 1;
 

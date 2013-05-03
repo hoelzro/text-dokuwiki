@@ -37,10 +37,69 @@ So instead of reparsing the entire document, it would be nice to tell the parser
 until line X, and then start parsing this document again".  It's kind of like the memento pattern.
 It would be nice to have this implemented as a role.
 
+=head2 Add highlighting for tests to show what's wrong with the structure
+
+=head2 I don't think I should be setting content on anything other than TextElements
+
+Well, BoldElements and others are ok, but I think I need to evaluate what gets content
+more carefully.
+
+=head2 How much I<should> I care about preserving whitespace?
+
+A lot of the tests check for leading/trailing whitespace.  How much should I really
+be preserving it?
+
+=head2 "Assertion" mode
+
+It'd be nice to tell the module to check that certain assumptions are true.  Namely:
+
+=over 4
+
+=item *
+
+All arguments provided to a constructor are used (L<MooseX::StrictConstructor>)
+
+=item *
+
+Making sure that ListElements only have ListElement and ListItemElement children (although
+this could be bad for extensions)
+
+=item *
+
+Checking the state stack
+
+=back
+
+=head1 TESTS
+
 =head2 Test for cyclic references
 
 We need to make sure we handle parent-child relationships properly.
 
-=head2 Add highlighting for tests to show what's wrong with the structure
+=head2 Markup embedded within one another
+
+Example:
+
+    //**bold and italic**//
+
+=head2 CamelCase links (implemented as a role)
+
+=head2 Test namespaces?
+
+I wrote this down in a non-committed file a while ago, and now I don't know what it means. =(
+
+Did I mean XML namespaces in generated HTML? Do I mean Perl packages?
+
+=head2 ToC generation for as_html
+
+=head2 Tests for horizontal rule
+
+=head2 Test for mixed embedded markup
+
+Example:
+
+    **//bold and italic**//
+
+=head2 Look over official DokuWiki tests, derive what you can
 
 =cut

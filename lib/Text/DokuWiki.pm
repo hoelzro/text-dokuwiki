@@ -23,6 +23,7 @@ use aliased 'Text::DokuWiki::Element::ListItem'         => 'ListItemElement';
 use aliased 'Text::DokuWiki::Element::Monospace'        => 'MonospaceElement';
 use aliased 'Text::DokuWiki::Element::NoTOC'            => 'NoTOCElement';
 use aliased 'Text::DokuWiki::Element::Paragraph'        => 'ParagraphElement';
+use aliased 'Text::DokuWiki::Element::Quote'            => 'QuoteElement';
 use aliased 'Text::DokuWiki::Element::Subscript'        => 'SubscriptElement';
 use aliased 'Text::DokuWiki::Element::Superscript'      => 'SuperscriptElement';
 use aliased 'Text::DokuWiki::Element::Text'             => 'TextElement';
@@ -696,6 +697,23 @@ sub BUILD {
             if($last_child && $last_child->isa(ParagraphElement)) {
                 $last_child->_close;
             }
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'quote',
+        state   => 'top',
+        pattern => qr/^(?<quote_level>[>]+)(?<content>.*)$/m,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            my $quote = $parser->_append_child(QuoteElement,
+                level => length($+{'quote_level'}),
+            );
+            $quote->append_child($parser->_create_node(TextElement,
+                parent  => $quote,
+                content => $+{'content'},
+            ));
         },
     );
 

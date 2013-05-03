@@ -463,6 +463,34 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
+        name    => 'nowiki',
+        state   => 'inline',
+        pattern => qr{<nowiki>(?<content>.*?)</nowiki>},
+        handler => sub {
+            my ( $parser ) = @_;
+
+            unless($self->current_node->_is_textual) {
+                $self->_down(TextElement);
+            }
+            $self->_append_content($+{'content'});
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'nowiki_short',
+        state   => 'inline',
+        pattern => qr/%%(?<content>.*?)%%/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            unless($self->current_node->_is_textual) {
+                $self->_down(TextElement);
+            }
+            $self->_append_content($+{'content'});
+        },
+    );
+
+    $self->_add_parser_rule(
         name    => 'open_pseudo_html',
         state   => 'inline',
         pattern => $OPEN_PSEUDO_HTML_RE,

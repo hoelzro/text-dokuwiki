@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -73,7 +73,21 @@ Code
   Text 'I have some **fake** markup in my code block.'
 END_TREE
 
+test_doc $text, $tree, 'fake markup';
+
+$text = <<'END_DOKUWIKI';
+<code>
+I have some **fake** markup in my code block.
+</code>
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Code
+  Text 'I have some **fake** markup in my code block.'
+END_TREE
+
 test_doc $text, $tree;
 
 # syntax highlighting
+# Nest <code>...</code> within a <code> block
 # code block names

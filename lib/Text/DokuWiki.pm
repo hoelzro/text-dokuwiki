@@ -792,6 +792,21 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
+        name    => 'code_block_code',
+        state   => 'top',
+        pattern => qr{^<code>\n(?<content>.*?)\n</code>}s,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            my $code = $parser->_append_child(CodeElement);
+            $code->append_child($parser->_create_node(TextElement,
+                content => $+{'content'},
+                parent  => $code,
+            ));
+        },
+    );
+
+    $self->_add_parser_rule(
         name    => 'start_paragraph',
         state   => 'top',
         pattern => qr//,

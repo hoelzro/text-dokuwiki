@@ -61,6 +61,8 @@ my %CLASS_STRINGIFIERS = (
     'URI::https'                         => \&_stringify_uri,
 );
 
+my @test_predicates = (sub { 1 });
+
 sub _general_moose_comparator {
     my ( $lhs, $rhs ) = @_;
 
@@ -397,7 +399,14 @@ sub dump_tree {
 sub test_doc {
     my ( $doc, $expected_tree, $name ) = @_;
 
-    my $pkg = caller();
+    my ( $pkg, undef, $line ) = caller();
+
+    if(none { $_->($line, $name) } @test_predicates) {
+        SKIP: {
+            skip q{This is not the test you're looking for}, 1;
+        }
+        return;
+    }
 
     unless(eval { $doc->isa('Text::DokuWiki::Document') }) {
         chomp $doc;
@@ -425,6 +434,30 @@ sub test_doc {
         diag("expected tree:\n$expected_tree");
         diag('got tree:');
         dump_tree($doc);
+    }
+}
+
+if(@ARGV) {
+    @test_predicates = ();
+
+    foreach my $predicate (@ARGV) {
+        if($predicate =~ /^[+](?<line_no>\d+)$/) {
+            my $test_line = $+{'line_no'};
+
+            push @test_predicates, sub {
+                my ( $line ) = @_;
+
+                return $test_line == $line;
+            };
+        } else {
+            my $test_re = qr/$predicate/;
+
+            push @test_predicates, sub {
+                my ( undef, $name ) = @_;
+
+                return defined($name) && $name =~ /$test_re/;
+            };
+        }
     }
 }
 

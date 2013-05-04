@@ -256,6 +256,7 @@ sub _diff_children {
     my $recurse           = $params{'recurse'};
     my $text_path         = $params{'text_path'};
     my $parent            = $params{'parent'};
+    my $path              = $params{'path'} || [];
 
     if(@$got_children != @$expected_children) {
         my $n_got      = @$got_children;
@@ -269,10 +270,10 @@ sub _diff_children {
         my $expected_child = $expected_children->[$i];
 
         unless($got_child->parent == $parent) {
-            return undef, { message => q{parent doesn't match} };
+            return undef, { message => q{parent doesn't match}, path => $path };
         }
 
-        my ( $ok, $diag ) = $recurse->($got_child, $expected_child, @$text_path);
+        my ( $ok, $diag ) = $recurse->($got_child, $expected_child, [ @$path, $i ], @$text_path);
 
         unless($ok) {
             return $ok, $diag;
@@ -283,7 +284,7 @@ sub _diff_children {
 }
 
 sub _check_tree {
-    my ( $got, $expected, @text_path ) = @_;
+    my ( $got, $expected, $path, @text_path ) = @_;
 
     push @text_path, $expected->{'type'} // 'Document';
 
@@ -294,7 +295,7 @@ sub _check_tree {
         my $expected_type = 'Text::DokuWiki::Element::' . $expected->{'type'};
 
         if($got_type ne $expected_type) {
-            return undef, { message => "Type mismatch: $got_type vs $expected_type" };
+            return undef, { message => "Type mismatch: $got_type vs $expected_type", path => $path };
         }
 
         my $got_attrs      = _extract_attributes($got);
@@ -303,7 +304,7 @@ sub _check_tree {
         my @diff = _diff_attributes($got_attrs, $expected_attrs);
 
         if(@diff) {
-            return undef, { message => _summarize_diff(\@diff, \@text_path, $got_attrs, $expected_attrs) };
+            return undef, { message => _summarize_diff(\@diff, \@text_path, $got_attrs, $expected_attrs), path => $path };
         }
     }
 
@@ -313,11 +314,12 @@ sub _check_tree {
         expected  => $expected->{'children'},
         recurse   => \&_check_tree,
         text_path => \@text_path,
+        path      => $path,
     );
 }
 
 sub _check_document {
-    my ( $got, $expected, @text_path ) = @_;
+    my ( $got, $expected, $path, @text_path ) = @_;
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
@@ -325,7 +327,7 @@ sub _check_document {
         my $text_path      = join(' => ', @text_path);
         my $got_class      = ref($got);
         my $expected_class = ref($expected);
-        return undef, { message => "Type mismatch: ($text_path)\ngot:      $got_class\nexpected: $expected_class" };
+        return undef, { message => "Type mismatch: ($text_path)\ngot:      $got_class\nexpected: $expected_class", path => $path };
     }
 
     my $got_attrs      = _extract_attributes($got);
@@ -333,7 +335,7 @@ sub _check_document {
     my @diff           = _diff_attributes($got_attrs, $expected_attrs);
 
     if(@diff) {
-        return undef, { message => _summarize_diff(\@diff, \@text_path, $got_attrs, $expected_attrs) };
+        return undef, { message => _summarize_diff(\@diff, \@text_path, $got_attrs, $expected_attrs), path => $path };
     }
 
     my $type = ref($got);
@@ -346,6 +348,7 @@ sub _check_document {
         expected  => $expected->children,
         recurse   => \&_check_document,
         text_path => \@text_path,
+        path      => $path,
     );
 }
 

@@ -90,4 +90,6 @@ test_doc $text, $tree;
 
 # syntax highlighting
 # Nest <code>...</code> within a <code> block
+# <code>...</code> without newlines following opener/preceding closer
+# <code> block with language/name specification
 # code block names

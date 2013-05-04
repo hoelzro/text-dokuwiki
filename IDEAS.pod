@@ -72,6 +72,10 @@ Checking the state stack
 
 Making sure all states have parser rules
 
+=item *
+
+When appending a child, assert that C<$child->parent == $self>.
+
 =back
 
 =head2 Give all tests names

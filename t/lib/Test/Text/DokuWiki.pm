@@ -269,7 +269,7 @@ sub _diff_children {
         my $expected_child = $expected_children->[$i];
 
         unless($got_child->parent == $parent) {
-            return undef, q{parent doesn't match};
+            return undef, { message => q{parent doesn't match} };
         }
 
         my ( $ok, $diag ) = $recurse->($got_child, $expected_child, @$path);
@@ -294,7 +294,7 @@ sub _check_tree {
         my $expected_type = 'Text::DokuWiki::Element::' . $expected->{'type'};
 
         if($got_type ne $expected_type) {
-            return undef, "Type mismatch: $got_type vs $expected_type";
+            return undef, { message => "Type mismatch: $got_type vs $expected_type" };
         }
 
         my $got_attrs      = _extract_attributes($got);
@@ -303,7 +303,7 @@ sub _check_tree {
         my @diff = _diff_attributes($got_attrs, $expected_attrs);
 
         if(@diff) {
-            return undef, _summarize_diff(\@diff, \@path, $got_attrs, $expected_attrs);
+            return undef, { message => _summarize_diff(\@diff, \@path, $got_attrs, $expected_attrs) };
         }
     }
 
@@ -325,7 +325,7 @@ sub _check_document {
         my $path           = join(' => ', @path);
         my $got_class      = ref($got);
         my $expected_class = ref($expected);
-        return undef, "Type mismatch: ($path)\ngot:      $got_class\nexpected: $expected_class";
+        return undef, { message => "Type mismatch: ($path)\ngot:      $got_class\nexpected: $expected_class" };
     }
 
     my $got_attrs      = _extract_attributes($got);
@@ -333,7 +333,7 @@ sub _check_document {
     my @diff           = _diff_attributes($got_attrs, $expected_attrs);
 
     if(@diff) {
-        return undef, _summarize_diff(\@diff, \@path, $got_attrs, $expected_attrs);
+        return undef, { message => _summarize_diff(\@diff, \@path, $got_attrs, $expected_attrs) };
     }
 
     my $type = ref($got);
@@ -430,7 +430,7 @@ sub test_doc {
     }
 
     unless(ok($ok, $name)) {
-        diag($diag);
+        diag($diag->{'message'});
         diag("expected tree:\n$expected_tree");
         diag('got tree:');
         dump_tree($doc);

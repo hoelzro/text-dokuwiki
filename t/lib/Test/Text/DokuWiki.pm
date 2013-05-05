@@ -263,7 +263,7 @@ sub _diff_children {
         my $n_got      = @$got_children;
         my $n_expected = @$expected_children;
 
-        return undef, "# children mismatch: $n_got vs $n_expected";
+        return undef, { message => "# children mismatch: $n_got vs $n_expected", path => $path };
     }
 
     for(my $i = 0; $i < @$got_children; $i++) {

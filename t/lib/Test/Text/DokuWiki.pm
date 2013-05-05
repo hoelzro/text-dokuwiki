@@ -8,6 +8,7 @@ use Data::Dumper;
 use List::MoreUtils qw(none uniq);
 use Scalar::Util qw(blessed);
 use Text::DokuWiki;
+use Term::ANSIColor;
 use Test::More;
 
 use aliased 'Text::DokuWiki::Link::External'     => 'ExternalLink';
@@ -352,8 +353,14 @@ sub _check_document {
     );
 }
 
+sub colorize {
+    my ( $value ) = @_;
+
+    return colored(['on_red', 'yellow'], $value);
+}
+
 sub dump_tree {
-    my ( $doc, $dumper, $indent_level ) = @_;
+    my ( $doc, $highlight_path, $dumper, $indent_level ) = @_;
 
     unless($dumper) {
         unless(eval { $doc->isa('Text::DokuWiki::Document') }) {
@@ -387,15 +394,27 @@ sub dump_tree {
     $dumper->Values([ $attrs ]);
     $dumper->Reset;
 
+    my $print_me;
+
     if(defined $attrs) {
-        diag($indent . $class . ' ' . $dumper->Dump);
+        $print_me = $indent . $class . ' ' . $dumper->Dump;
     } else {
-        diag($indent . $class);
+        $print_me = $indent . $class;
     }
+    if($highlight_path && !@$highlight_path) {
+        $print_me = colorize($print_me);
+    }
+    diag($print_me);
     my $children = $doc->can('children') ? $doc->children : [];
 
+    my $child_index = 0;
     foreach my $child (@$children){
-        dump_tree($child, $dumper, $indent_level + 1);
+        if($highlight_path && @$highlight_path && $highlight_path->[0] == $child_index) {
+            dump_tree($child, [ @{$highlight_path}[1..$#$highlight_path] ], $dumper, $indent_level + 1);
+        } else {
+            dump_tree($child, undef, $dumper, $indent_level + 1);
+        }
+        $child_index++;
     }
 }
 
@@ -436,7 +455,7 @@ sub test_doc {
         diag($diag->{'message'});
         diag("expected tree:\n$expected_tree");
         diag('got tree:');
-        dump_tree($doc);
+        dump_tree($doc, $diag->{'path'});
     }
 }
 

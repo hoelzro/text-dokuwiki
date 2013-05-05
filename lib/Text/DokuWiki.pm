@@ -797,7 +797,7 @@ sub BUILD {
     $self->_add_parser_rule(
         name    => 'code_block_code',
         state   => 'top',
-        pattern => qr{^<code>\n(?<content>.*?)\n</code>}s,
+        pattern => qr{^<code>\n*(?<content>.*?)\n*</code>}s,
         handler => sub {
             my ( $parser ) = @_;
 

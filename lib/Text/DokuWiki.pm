@@ -48,12 +48,21 @@ my $HEADER_RE = qr{
     $
 }xm;
 
+# XXX I might want a way to extend this in the future
+my %PSEUDO_HTML_NODE_CLASSES = (
+    del   => DeletedElement,
+    'sub' => SubscriptElement,
+    super => SuperscriptElement,
+);
+
+my $html_tags_re = join('|', keys(%PSEUDO_HTML_NODE_CLASSES));
+
 my $OPEN_PSEUDO_HTML_RE = qr{
-    <(?<tag_name>\w+)>
+    <(?<tag_name>$html_tags_re)>
 }x;
 
 my $CLOSE_PSEUDO_HTML_RE = qr{
-    </(?<tag_name>\w+)>
+    </(?<tag_name>$html_tags_re)>
 }x;
 
 my $INTERNAL_LINK_RE = qr{
@@ -90,12 +99,6 @@ my $IMAGE_RE = qr{
 
     [}][}] # trailing }}
 }x;
-
-my %PSEUDO_HTML_NODE_CLASSES = (
-    del   => DeletedElement,
-    'sub' => SubscriptElement,
-    super => SuperscriptElement,
-);
 
 has current_node => (
     is      => 'rw',

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -114,7 +114,27 @@ END_TREE
 
 test_doc $text, $tree;
 
+# XXX This is actually *not* compliant with DokuWiki;
+#     I'm "fixing" it for this parser.  If full compatibility
+#     is desired, I might break it out into a role or offer
+#     some capability option or something
+$text = <<'END_DOKUWIKI';
+<code>
+<html>
+  <body>
+    Here's some fake HTML with <code>code</code> in it.
+  </body>
+</html>
+</code>
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Code
+  Text q{<html>\n  <body>\n     Here's some fake HTML with <code>code</code> in it.\  </body>\n</html>}
+END_TREE
+
+test_doc $text, $tree;
+
 # syntax highlighting
-# Nest <code>...</code> within a <code> block
 # <code> block with language/name specification
 # code block names

@@ -4,6 +4,11 @@ use Moose;
 
 extends 'Text::DokuWiki::Element';
 
+has _level => (
+    is      => 'rw',
+    default => 0,
+);
+
 1;
 
 __END__

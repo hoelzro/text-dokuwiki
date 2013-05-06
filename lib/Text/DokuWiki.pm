@@ -612,8 +612,8 @@ sub BUILD {
 
     ### Code Block Rules
     $self->_add_parser_rule(
-        name    => 'end_code_block',
-        state   => 'code_block',
+        name    => 'end_code_block_indented',
+        state   => 'code_block_indented',
         pattern => qr/\n/,
         handler => sub {
             my ( $parser ) = @_;
@@ -621,6 +621,53 @@ sub BUILD {
             $parser->_pop_text_node;
             $parser->_up;
             $parser->_pop_state;
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'nested_code_block',
+        state   => 'code_block_code',
+        pattern => qr/<code>/,
+        handler => sub {
+            my ( $parser, $value ) = @_;
+
+            # XXX I swear, this needs to be a helper method
+            unless($self->current_node->_is_textual) {
+                $self->_down(TextElement);
+            }
+            $self->_append_content($value);
+
+            my $code = $parser->current_node;
+            while(!$code->isa(CodeElement)) {
+                $code = $code->parent;
+            }
+
+            $code->_level($code->_level + 1);
+        },
+    );
+
+    $self->_add_parser_rule(
+        name  => 'end_code_block_code',
+        state => 'code_block_code',
+        pattern => qr{\n*</code>},
+        handler => sub {
+            my ( $parser, $value ) = @_;
+
+            my $code = $parser->current_node;
+            while(!$code->isa(CodeElement)) {
+                $code = $code->parent;
+            }
+
+            if($code->_level == 0) {
+                $parser->current_node($code->parent);
+                $parser->_pop_state;
+            } else {
+                $code->_level($code->_level - 1);
+                unless($self->current_node->_is_textual) {
+                    $self->_down(TextElement);
+                }
+                $self->_append_content($value);
+            }
         },
     );
 
@@ -763,7 +810,7 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'code_block',
+        name    => 'code_block_indented',
         state   => 'top',
         pattern => qr/^  /,
         handler => sub {
@@ -790,22 +837,20 @@ sub BUILD {
                 $parser->_down(CodeElement);
             }
 
-            $parser->_push_state('code_block');
+            $parser->_push_state('code_block_indented');
         },
     );
 
     $self->_add_parser_rule(
         name    => 'code_block_code',
         state   => 'top',
-        pattern => qr{^<code>\n*(?<content>.*?)\n*</code>}s,
+        pattern => qr{^<code>\n*}s,
         handler => sub {
             my ( $parser ) = @_;
 
-            my $code = $parser->_append_child(CodeElement);
-            $code->append_child($parser->_create_node(TextElement,
-                content => $+{'content'},
-                parent  => $code,
-            ));
+            $parser->_down(CodeElement);
+
+            $parser->_push_state('code_block_code');
         },
     );
 
@@ -868,6 +913,7 @@ sub parse {
                 if($IS_DEBUGGING) {
                     $self->_diag('text matched pattern ' . $parser_rule->{'name'});
                 }
+                # XXX what rules actually make use of the passed-in match?
                 $handler->($self, ${^MATCH});
                 $text = ${^POSTMATCH};
                 next TEXT_LOOP;

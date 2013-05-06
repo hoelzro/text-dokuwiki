@@ -80,6 +80,8 @@ When appending a child, assert that C<$child->parent == $self>.
 
 =head2 Give all tests names
 
+=head2 Use Moo instead of Moose?
+
 =head1 TESTS
 
 =head2 Test for cyclic references

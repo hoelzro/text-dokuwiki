@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
@@ -135,8 +135,24 @@ END_TREE
 
 test_doc $text, $tree;
 
+$text = <<'END_DOKUWIKI';
+<code>
+<html>
+  <body>
+    Here's some fake HTML with <code class='codey'>code</code> in it.
+  </body>
+</html>
+</code>
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Code
+  Text qq{<html>\n  <body>\n    Here's some fake HTML with <code class='codey'>code</code> in it.\n  </body>\n</html>}
+END_TREE
+
+test_doc $text, $tree;
+
 # syntax highlighting
 # <code> block with language/name specification
 # code block names
 # <code> inline with a paragraph
-# nested <code attr="value">

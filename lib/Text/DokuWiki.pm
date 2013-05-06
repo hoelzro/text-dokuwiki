@@ -627,7 +627,7 @@ sub BUILD {
     $self->_add_parser_rule(
         name    => 'nested_code_block',
         state   => 'code_block_code',
-        pattern => qr/<code>/,
+        pattern => qr/<code.*?>/,
         handler => sub {
             my ( $parser, $value ) = @_;
 

@@ -138,3 +138,5 @@ test_doc $text, $tree;
 # syntax highlighting
 # <code> block with language/name specification
 # code block names
+# <code> inline with a paragraph
+# nested <code attr="value">

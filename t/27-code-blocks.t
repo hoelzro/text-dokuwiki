@@ -23,7 +23,7 @@ Paragraph
   Text 'Another paragraph.'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test indented code block interspersed with paragraphs';
 
 $text = <<'END_DOKUWIKI';
   More
@@ -37,7 +37,7 @@ Code
   Text "More\nThan\nOne\nLine!"
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test multi-line indented code block';
 
 $text = <<'END_DOKUWIKI';
   Code
@@ -50,7 +50,7 @@ Code
   Text "Code\n  With\n    Indent!"
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test multi-line indented code block with multiple indent levels';
 
 $text = <<'END_DOKUWIKI';
  This is actually a paragraph.
@@ -62,7 +62,7 @@ Paragraph
   Text ' This is actually a paragraph.'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test paragraph with a single space of indent';
 
 $text = <<'END_DOKUWIKI';
   I have some **fake** markup in my code block.
@@ -73,7 +73,7 @@ Code
   Text 'I have some **fake** markup in my code block.'
 END_TREE
 
-test_doc $text, $tree, 'fake markup';
+test_doc $text, $tree, 'Test fake markup in indented code block';
 
 $text = <<'END_DOKUWIKI';
 <code>
@@ -86,7 +86,7 @@ Code
   Text 'I have some **fake** markup in my code block.'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test fake markup in <code> block';
 
 $text = <<'END_DOKUWIKI';
 <code>I have some **fake** markup in my code block.</code>
@@ -97,7 +97,7 @@ Code
   Text 'I have some **fake** markup in my code block.'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test <code> block with variable newlines';
 
 $text = <<'END_DOKUWIKI';
 <code>
@@ -112,7 +112,7 @@ Code
   Text 'I have some **fake** markup in my code block.'
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test <code> block with variable newlines';
 
 # XXX This is actually *not* compliant with DokuWiki;
 #     I'm "fixing" it for this parser.  If full compatibility
@@ -133,7 +133,7 @@ Code
   Text qq{<html>\n  <body>\n    Here's some fake HTML with <code>code</code> in it.\n  </body>\n</html>}
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test <code> block with nested <code> block';
 
 $text = <<'END_DOKUWIKI';
 <code>
@@ -150,7 +150,7 @@ Code
   Text qq{<html>\n  <body>\n    Here's some fake HTML with <code class='codey'>code</code> in it.\n  </body>\n</html>}
 END_TREE
 
-test_doc $text, $tree;
+test_doc $text, $tree, 'Test <code> block with nested <code attr=value> block';
 
 # syntax highlighting
 # <code> block with language/name specification

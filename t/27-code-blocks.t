@@ -130,7 +130,7 @@ END_DOKUWIKI
 
 $tree = <<'END_TREE';
 Code
-  Text q{<html>\n  <body>\n     Here's some fake HTML with <code>code</code> in it.\  </body>\n</html>}
+  Text qq{<html>\n  <body>\n    Here's some fake HTML with <code>code</code> in it.\n  </body>\n</html>}
 END_TREE
 
 test_doc $text, $tree;

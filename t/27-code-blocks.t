@@ -2,19 +2,61 @@
 
 use strict;
 use warnings;
+use utf8;
 
-use Test::More tests => 10;
+use List::MoreUtils qw(natatime);
+use Test::More;
 use Test::Text::DokuWiki;
 
-my $text = <<'END_DOKUWIKI';
+sub create_indented_code_block {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code =~ s/\n/\n  /g;
+        $text =~ s/«CODE»/  $code/;
+        return $text;
+    } else {
+        chomp $text;
+        $text =~ s/\n/\n  /g;
+        return '  ' .$text;
+    }
+}
+
+sub create_code_block {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<code>$code</code>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<code>$text</code>";
+    }
+}
+
+my @code_block_types = (
+    indented     => \&create_indented_code_block,
+    'code block' => \&create_code_block,
+);
+
+plan tests => (@code_block_types / 2 * 4 + 5);
+
+my $iterator = natatime(2, @code_block_types);
+
+while(my ( $name, $creator ) = $iterator->()) {
+    my $code = 'A sample code block with no special highlighting.';
+    my $text = $creator->(<<'END_DOKUWIKI', $code);
 A paragraph.
 
-  A sample code block with no special highlighting.
+«CODE»
 
 Another paragraph.
 END_DOKUWIKI
 
-my $tree = <<'END_TREE';
+    my $tree = <<'END_TREE';
 Paragraph
   Text 'A paragraph.'
 Code
@@ -23,34 +65,47 @@ Paragraph
   Text 'Another paragraph.'
 END_TREE
 
-test_doc $text, $tree, 'Test indented code block interspersed with paragraphs';
+    test_doc $text, $tree, "Test $name code block interspersed with paragraphs";
 
-$text = <<'END_DOKUWIKI';
-  More
-  Than
-  One
-  Line!
+    $text = $creator->(<<'END_DOKUWIKI');
+More
+Than
+One
+Line!
 END_DOKUWIKI
 
-$tree = <<'END_TREE';
+    $tree = <<'END_TREE';
 Code
   Text "More\nThan\nOne\nLine!"
 END_TREE
 
-test_doc $text, $tree, 'Test multi-line indented code block';
+    test_doc $text, $tree, "Test multi-line $name code block";
 
-$text = <<'END_DOKUWIKI';
-  Code
-    With
-      Indent!
+    $text = $creator->(<<'END_DOKUWIKI');
+Code
+  With
+    Indent!
 END_DOKUWIKI
 
-$tree = <<'END_TREE';
+    $tree = <<'END_TREE';
 Code
   Text "Code\n  With\n    Indent!"
 END_TREE
 
-test_doc $text, $tree, 'Test multi-line indented code block with multiple indent levels';
+    test_doc $text, $tree, "Test multi-line $name code block with multiple indent levels";
+
+    $text = $creator->('I have some **fake** markup in my code block.');
+
+    $tree = <<'END_TREE';
+Code
+  Text 'I have some **fake** markup in my code block.'
+END_TREE
+
+    test_doc $text, $tree, "Test fake markup in $name code block";
+}
+
+my $text;
+my $tree;
 
 $text = <<'END_DOKUWIKI';
  This is actually a paragraph.
@@ -65,17 +120,6 @@ END_TREE
 test_doc $text, $tree, 'Test paragraph with a single space of indent';
 
 $text = <<'END_DOKUWIKI';
-  I have some **fake** markup in my code block.
-END_DOKUWIKI
-
-$tree = <<'END_TREE';
-Code
-  Text 'I have some **fake** markup in my code block.'
-END_TREE
-
-test_doc $text, $tree, 'Test fake markup in indented code block';
-
-$text = <<'END_DOKUWIKI';
 <code>
 I have some **fake** markup in my code block.
 </code>
@@ -87,17 +131,6 @@ Code
 END_TREE
 
 test_doc $text, $tree, 'Test fake markup in <code> block';
-
-$text = <<'END_DOKUWIKI';
-<code>I have some **fake** markup in my code block.</code>
-END_DOKUWIKI
-
-$tree = <<'END_TREE';
-Code
-  Text 'I have some **fake** markup in my code block.'
-END_TREE
-
-test_doc $text, $tree, 'Test <code> block with variable newlines';
 
 $text = <<'END_DOKUWIKI';
 <code>
@@ -151,7 +184,6 @@ Code
 END_TREE
 
 test_doc $text, $tree, 'Test <code> block with nested <code attr=value> block';
-
 # syntax highlighting
 # <code> block with language/name specification
 # code block names

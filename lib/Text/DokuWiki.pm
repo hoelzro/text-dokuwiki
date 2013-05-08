@@ -844,11 +844,17 @@ sub BUILD {
     $self->_add_parser_rule(
         name    => 'code_block_code',
         state   => 'top',
-        pattern => qr{^<code.*?>\n*}s,
+        pattern => qr{^<code(?:\s+(?<language>\w+))?>\n*}s,
         handler => sub {
             my ( $parser ) = @_;
 
-            $parser->_down(CodeElement);
+            my %attributes;
+
+            if(defined $+{'language'}) {
+                $attributes{'language'} = $+{'language'};
+            }
+
+            $parser->_down(CodeElement, %attributes);
 
             $parser->_push_state('code_block_code');
         },

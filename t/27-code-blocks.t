@@ -65,11 +65,26 @@ sub create_code_block_with_extra_newlines {
     }
 }
 
+sub create_code_block_with_language {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<code text>$code</code>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<code text>$text</code>";
+    }
+}
+
 my @code_block_types = (
     indented                         => \&create_indented_code_block,
     'code block'                     => \&create_code_block,
     'code block with newlines'       => \&create_code_block_with_newlines,
     'code block with extra newlines' => \&create_code_block_with_extra_newlines,
+    'code block with language'       => \&create_code_block_with_language,
 );
 
 plan tests => (@code_block_types / 2 * 6 + 1);

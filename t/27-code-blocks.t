@@ -37,12 +37,42 @@ sub create_code_block {
     }
 }
 
+sub create_code_block_with_newlines {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<code>\n$code\n</code>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<code>\n$text\n</code>";
+    }
+}
+
+sub create_code_block_with_extra_newlines {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<code>\n\n$code\n\n</code>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<code>\n\n$text\n\n</code>";
+    }
+}
+
 my @code_block_types = (
-    indented     => \&create_indented_code_block,
-    'code block' => \&create_code_block,
+    indented                         => \&create_indented_code_block,
+    'code block'                     => \&create_code_block,
+    'code block with newlines'       => \&create_code_block_with_newlines,
+    'code block with extra newlines' => \&create_code_block_with_extra_newlines,
 );
 
-plan tests => (@code_block_types / 2 * 4 + 5);
+plan tests => (@code_block_types / 2 * 6 + 1);
 
 my $iterator = natatime(2, @code_block_types);
 
@@ -102,6 +132,40 @@ Code
 END_TREE
 
     test_doc $text, $tree, "Test fake markup in $name code block";
+
+    # XXX This is actually *not* compliant with DokuWiki;
+    #     I'm "fixing" it for this parser.  If full compatibility
+    #     is desired, I might break it out into a role or offer
+    #     some capability option or something
+    $text = $creator->(<<'END_DOKUWIKI');
+<html>
+  <body>
+    Here's some fake HTML with <code>code</code> in it.
+  </body>
+</html>
+END_DOKUWIKI
+
+    $tree = <<'END_TREE';
+Code
+  Text qq{<html>\n  <body>\n    Here's some fake HTML with <code>code</code> in it.\n  </body>\n</html>}
+END_TREE
+
+    test_doc $text, $tree, "Test $name block with nested <code> block";
+
+    $text = $creator->(<<'END_DOKUWIKI');
+<html>
+  <body>
+    Here's some fake HTML with <code class='codey'>code</code> in it.
+  </body>
+</html>
+END_DOKUWIKI
+
+    $tree = <<'END_TREE';
+Code
+  Text qq{<html>\n  <body>\n    Here's some fake HTML with <code class='codey'>code</code> in it.\n  </body>\n</html>}
+END_TREE
+
+    test_doc $text, $tree, "Test $name block with nested <code attr=value> block";
 }
 
 my $text;
@@ -119,71 +183,6 @@ END_TREE
 
 test_doc $text, $tree, 'Test paragraph with a single space of indent';
 
-$text = <<'END_DOKUWIKI';
-<code>
-I have some **fake** markup in my code block.
-</code>
-END_DOKUWIKI
-
-$tree = <<'END_TREE';
-Code
-  Text 'I have some **fake** markup in my code block.'
-END_TREE
-
-test_doc $text, $tree, 'Test fake markup in <code> block';
-
-$text = <<'END_DOKUWIKI';
-<code>
-
-I have some **fake** markup in my code block.
-
-</code>
-END_DOKUWIKI
-
-$tree = <<'END_TREE';
-Code
-  Text 'I have some **fake** markup in my code block.'
-END_TREE
-
-test_doc $text, $tree, 'Test <code> block with variable newlines';
-
-# XXX This is actually *not* compliant with DokuWiki;
-#     I'm "fixing" it for this parser.  If full compatibility
-#     is desired, I might break it out into a role or offer
-#     some capability option or something
-$text = <<'END_DOKUWIKI';
-<code>
-<html>
-  <body>
-    Here's some fake HTML with <code>code</code> in it.
-  </body>
-</html>
-</code>
-END_DOKUWIKI
-
-$tree = <<'END_TREE';
-Code
-  Text qq{<html>\n  <body>\n    Here's some fake HTML with <code>code</code> in it.\n  </body>\n</html>}
-END_TREE
-
-test_doc $text, $tree, 'Test <code> block with nested <code> block';
-
-$text = <<'END_DOKUWIKI';
-<code>
-<html>
-  <body>
-    Here's some fake HTML with <code class='codey'>code</code> in it.
-  </body>
-</html>
-</code>
-END_DOKUWIKI
-
-$tree = <<'END_TREE';
-Code
-  Text qq{<html>\n  <body>\n    Here's some fake HTML with <code class='codey'>code</code> in it.\n  </body>\n</html>}
-END_TREE
-
-test_doc $text, $tree, 'Test <code> block with nested <code attr=value> block';
 # syntax highlighting
 # <code> block with language/name specification
 # code block names

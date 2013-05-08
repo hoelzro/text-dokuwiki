@@ -9,6 +9,11 @@ has _level => (
     default => 0,
 );
 
+has language => (
+    is      => 'ro',
+    default => 'text',
+);
+
 1;
 
 __END__

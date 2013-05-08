@@ -87,7 +87,7 @@ my @code_block_types = (
     'code block with language'       => \&create_code_block_with_language,
 );
 
-plan tests => (@code_block_types / 2 * 6 + 1);
+plan tests => (@code_block_types / 2 * 6 + 2);
 
 my $iterator = natatime(2, @code_block_types);
 
@@ -197,6 +197,21 @@ Paragraph
 END_TREE
 
 test_doc $text, $tree, 'Test paragraph with a single space of indent';
+
+$text = <<'END_DOKUWIKI';
+<code java>
+public static void main(String[] args) {
+    System.out.println("Hello, World!");
+}
+</code>
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Code { language => 'java' }
+  Text qq'public static void main(String[] args) {\n    System.out.println("Hello, World!");\n}'
+END_TREE
+
+test_doc $text, $tree, 'Test language attribute for non-text code';
 
 # syntax highlighting
 # <code> block with language/name specification

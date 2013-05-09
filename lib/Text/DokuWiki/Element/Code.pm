@@ -14,6 +14,11 @@ has language => (
     default => 'text',
 );
 
+has filename => (
+    is      => 'ro',
+    default => undef,
+);
+
 1;
 
 __END__

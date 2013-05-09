@@ -87,7 +87,7 @@ my @code_block_types = (
     'code block with language'       => \&create_code_block_with_language,
 );
 
-plan tests => (@code_block_types / 2 * 6 + 3);
+plan tests => (@code_block_types / 2 * 6 + 4);
 
 my $iterator = natatime(2, @code_block_types);
 
@@ -228,7 +228,21 @@ END_TREE
 
 test_doc $text, $tree, 'Test highlighting override for text code';
 
-# syntax highlighting
+$text = <<'END_DOKUWIKI';
+<code java Test.java>
+public static void main(String[] args) {
+    System.out.println("Hello, World!");
+}
+</code>
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Code { language => 'java', filename => 'Test.java' }
+  Text qq'public static void main(String[] args) {\n    System.out.println("Hello, World!");\n}'
+END_TREE
+
+test_doc $text, $tree, 'Test filenames for <code> blocks';
+
 # <code> block with language/name specification
 # code block names
 # <code> inline with a paragraph

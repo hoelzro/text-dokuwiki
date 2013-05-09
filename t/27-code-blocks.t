@@ -104,7 +104,7 @@ END_DOKUWIKI
     my $tree = <<'END_TREE';
 Paragraph
   Text 'A paragraph.'
-Code { language => 'text' }
+Code { language => 'text', filename => undef }
   Text 'A sample code block with no special highlighting.'
 Paragraph
   Text 'Another paragraph.'
@@ -120,7 +120,7 @@ Line!
 END_DOKUWIKI
 
     $tree = <<'END_TREE';
-Code { language => 'text' }
+Code { language => 'text', filename => undef }
   Text "More\nThan\nOne\nLine!"
 END_TREE
 
@@ -133,7 +133,7 @@ Code
 END_DOKUWIKI
 
     $tree = <<'END_TREE';
-Code { language => 'text' }
+Code { language => 'text', filename => undef }
   Text "Code\n  With\n    Indent!"
 END_TREE
 
@@ -142,7 +142,7 @@ END_TREE
     $text = $creator->('I have some **fake** markup in my code block.');
 
     $tree = <<'END_TREE';
-Code { language => 'text' }
+Code { language => 'text', filename => undef }
   Text 'I have some **fake** markup in my code block.'
 END_TREE
 
@@ -161,7 +161,7 @@ END_TREE
 END_DOKUWIKI
 
     $tree = <<'END_TREE';
-Code { language => 'text' }
+Code { language => 'text', filename => undef }
   Text qq{<html>\n  <body>\n    Here's some fake HTML with <code>code</code> in it.\n  </body>\n</html>}
 END_TREE
 
@@ -176,7 +176,7 @@ END_TREE
 END_DOKUWIKI
 
     $tree = <<'END_TREE';
-Code { language => 'text' }
+Code { language => 'text', filename => undef }
   Text qq{<html>\n  <body>\n    Here's some fake HTML with <code class='codey'>code</code> in it.\n  </body>\n</html>}
 END_TREE
 
@@ -207,7 +207,7 @@ public static void main(String[] args) {
 END_DOKUWIKI
 
 $tree = <<'END_TREE';
-Code { language => 'java' }
+Code { language => 'java', filename => undef }
   Text qq'public static void main(String[] args) {\n    System.out.println("Hello, World!");\n}'
 END_TREE
 
@@ -222,7 +222,7 @@ public static void main(String[] args) {
 END_DOKUWIKI
 
 $tree = <<'END_TREE';
-Code { language => 'text' }
+Code { language => 'text', filename => undef }
   Text qq'public static void main(String[] args) {\n    System.out.println("Hello, World!");\n}'
 END_TREE
 

@@ -844,7 +844,7 @@ sub BUILD {
     $self->_add_parser_rule(
         name    => 'code_block_code',
         state   => 'top',
-        pattern => qr{^<code(?:\s+(?<language>[-\w]+))?>\n*}s,
+        pattern => qr{^<code(?:\s+(?<language>[-\w]+)(?:\s+(?<filename>\S+))?)?>\n*}s,
         handler => sub {
             my ( $parser ) = @_;
 
@@ -855,6 +855,9 @@ sub BUILD {
                 if($attributes{'language'} eq '-') {
                     $attributes{'language'} = 'text';
                 }
+            }
+            if(defined $+{'filename'}) {
+                $attributes{'filename'} = $+{'filename'};
             }
 
             $parser->_down(CodeElement, %attributes);

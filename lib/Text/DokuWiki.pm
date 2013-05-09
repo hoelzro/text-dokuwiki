@@ -48,6 +48,19 @@ my $HEADER_RE = qr{
     $
 }xm;
 
+my $CODE_BLOCK_RE = qr{
+    ^
+    <code # start of <code> tag
+    (?:
+        \s+(?<language>[-\w]+)
+        (?:
+            \s+(?<filename>\S+)
+        )? # optional filename
+    )? # optional language + filename
+    > # ending > of <code> tag
+    \n*
+}xs;
+
 # XXX I might want a way to extend this in the future
 my %PSEUDO_HTML_NODE_CLASSES = (
     del   => DeletedElement,
@@ -844,7 +857,7 @@ sub BUILD {
     $self->_add_parser_rule(
         name    => 'code_block_code',
         state   => 'top',
-        pattern => qr{^<code(?:\s+(?<language>[-\w]+)(?:\s+(?<filename>\S+))?)?>\n*}s,
+        pattern => $CODE_BLOCK_RE,
         handler => sub {
             my ( $parser ) = @_;
 

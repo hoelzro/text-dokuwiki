@@ -243,6 +243,4 @@ END_TREE
 
 test_doc $text, $tree, 'Test filenames for <code> blocks';
 
-# <code> block with language/name specification
-# code block names
 # <code> inline with a paragraph

@@ -79,12 +79,72 @@ sub create_code_block_with_language {
     }
 }
 
+sub create_file_block {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<file>$code</file>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<file>$text</file>";
+    }
+}
+
+sub create_file_block_with_newlines {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<file>\n$code\n</file>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<file>\n$text\n</file>";
+    }
+}
+
+sub create_file_block_with_extra_newlines {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<file>\n\n$code\n\n</file>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<file>\n\n$text\n\n</file>";
+    }
+}
+
+sub create_file_block_with_language {
+    my ( $text, $code ) = @_;
+
+    if(defined $code) {
+        chomp $code;
+        $code = "<file text>$code</file>";
+        $text =~ s/«CODE»/$code/;
+        return $text;
+    } else {
+        chomp $text;
+        return "<file text>$text</file>";
+    }
+}
+
 my @code_block_types = (
     indented                         => \&create_indented_code_block,
     'code block'                     => \&create_code_block,
     'code block with newlines'       => \&create_code_block_with_newlines,
     'code block with extra newlines' => \&create_code_block_with_extra_newlines,
     'code block with language'       => \&create_code_block_with_language,
+    'file block'                     => \&create_file_block,
+    'file block with newlines'       => \&create_file_block_with_newlines,
+    'file block with extra newlines' => \&create_file_block_with_extra_newlines,
+    'file block with language'       => \&create_file_block_with_language,
 );
 
 plan tests => (@code_block_types / 2 * 6 + 4);

@@ -147,7 +147,7 @@ my @code_block_types = (
     'file block with language'       => \&create_file_block_with_language,
 );
 
-plan tests => (@code_block_types / 2 * 6 + 4);
+plan tests => (@code_block_types / 2 * 6 + 5);
 
 my $iterator = natatime(2, @code_block_types);
 
@@ -303,4 +303,17 @@ END_TREE
 
 test_doc $text, $tree, 'Test filenames for <code> blocks';
 
-# <code> inline with a paragraph
+$text = <<'END_DOKUWIKI';
+This is a paragraph with <code>embedded</code> code.
+END_DOKUWIKI
+
+$tree = <<'END_TREE';
+Paragraph
+  Text 'This is a paragraph with '
+Code { language => 'text', filename => undef }
+  Text 'embedded'
+Paragraph
+  Text ' code.'
+END_TREE
+
+test_doc $text, $tree, 'Test <code> embedded within a paragraph';

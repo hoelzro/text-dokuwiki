@@ -608,6 +608,33 @@ sub BUILD {
         },
     );
 
+    $self->_add_parser_rule(
+        name => 'inline_code_block',
+        state => 'inline',
+        pattern => $CODE_BLOCK_RE,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_finish_paragraph;
+            my %attributes;
+
+            if(defined $+{'language'}) {
+                $attributes{'language'} = $+{'language'};
+                if($attributes{'language'} eq '-') {
+                    $attributes{'language'} = 'text';
+                }
+            }
+            if(defined $+{'filename'}) {
+                $attributes{'filename'} = $+{'filename'};
+            }
+
+            $parser->_down(CodeElement, %attributes);
+
+            $self->_pop_state;
+            $self->_push_state('code_block_' . $+{'block_type'});
+        },
+    );
+
     ### Paragraph Rules
 
     # XXX this has to be the first rule in paragraph

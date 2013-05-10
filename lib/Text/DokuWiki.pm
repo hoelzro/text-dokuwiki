@@ -50,14 +50,14 @@ my $HEADER_RE = qr{
 
 my $CODE_BLOCK_RE = qr{
     ^
-    <code # start of <code> tag
+    <(?<block_type>code|file) # start of <code>/<file> tag
     (?:
         \s+(?<language>[-\w]+)
         (?:
             \s+(?<filename>\S+)
         )? # optional filename
     )? # optional language + filename
-    > # ending > of <code> tag
+    > # ending > of <code>/<file> tag
     \n*
 }xs;
 
@@ -684,6 +684,23 @@ sub BUILD {
         },
     );
 
+    $self->_add_parser_rule(
+        name  => 'end_code_block_file',
+        state => 'code_block_file',
+        pattern => qr{\n*</file>},
+        handler => sub {
+            my ( $parser, $value ) = @_;
+
+            my $code = $parser->current_node;
+            while(!$code->isa(CodeElement)) {
+                $code = $code->parent;
+            }
+
+            $parser->current_node($code->parent);
+            $parser->_pop_state;
+        },
+    );
+
     ### Top Level Rules
 
     # XXX do we need these rules in the paragraph state to properly do them?
@@ -875,7 +892,7 @@ sub BUILD {
 
             $parser->_down(CodeElement, %attributes);
 
-            $parser->_push_state('code_block_code');
+            $parser->_push_state('code_block_' . $+{'block_type'});
         },
     );
 

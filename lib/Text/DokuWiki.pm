@@ -22,6 +22,7 @@ use aliased 'Text::DokuWiki::Element::Link'             => 'LinkElement';
 use aliased 'Text::DokuWiki::Element::List'             => 'ListElement';
 use aliased 'Text::DokuWiki::Element::ListItem'         => 'ListItemElement';
 use aliased 'Text::DokuWiki::Element::Monospace'        => 'MonospaceElement';
+use aliased 'Text::DokuWiki::Element::NoCache'          => 'NoCacheElement';
 use aliased 'Text::DokuWiki::Element::NoTOC'            => 'NoTOCElement';
 use aliased 'Text::DokuWiki::Element::Paragraph'        => 'ParagraphElement';
 use aliased 'Text::DokuWiki::Element::Quote'            => 'QuoteElement';
@@ -739,6 +740,17 @@ sub BUILD {
             my ( $parser ) = @_;
 
             $parser->_append_child(NoTOCElement);
+        },
+    );
+
+    $self->_add_parser_rule(
+        name    => 'nocache',
+        state   => 'top',
+        pattern => qr/~~NOCACHE~~/,
+        handler => sub {
+            my ( $parser ) = @_;
+
+            $parser->_append_child(NoCacheElement);
         },
     );
 

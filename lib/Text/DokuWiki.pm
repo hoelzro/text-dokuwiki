@@ -66,7 +66,7 @@ my $CODE_BLOCK_RE = qr{
 my %PSEUDO_HTML_NODE_CLASSES = (
     del   => DeletedElement,
     'sub' => SubscriptElement,
-    super => SuperscriptElement,
+    sup   => SuperscriptElement,
 );
 
 my $html_tags_re = join('|', keys(%PSEUDO_HTML_NODE_CLASSES));

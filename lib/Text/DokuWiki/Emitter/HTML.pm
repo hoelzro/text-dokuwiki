@@ -54,6 +54,36 @@ after BUILD => sub {
 
         return '<strong>' . escape_html($element->content) . '</strong>';
     });
+
+    $self->_add_emitter_rule_pre(ItalicElement, sub {
+        my ( $self, $element ) = @_;
+
+        return '<em>' . escape_html($element->content) . '</em>';
+    });
+
+    $self->_add_emitter_rule_pre(UnderlinedElement, sub {
+        my ( $self, $element ) = @_;
+
+        return '<em class="u">' . escape_html($element->content) . '</em>';
+    });
+
+    $self->_add_emitter_rule_pre(MonospaceElement, sub {
+        my ( $self, $element ) = @_;
+
+        return '<code>' . escape_html($element->content) . '</code>';
+    });
+
+    $self->_add_emitter_rule_pre(SubscriptElement, sub {
+        my ( $self, $element ) = @_;
+
+        return '<sub>' . escape_html($element->content) . '</sub>';
+    });
+
+    $self->_add_emitter_rule_pre(SuperscriptElement, sub {
+        my ( $self, $element ) = @_;
+
+        return '<sup>' . escape_html($element->content) . '</sup>';
+    });
 };
 
 1;

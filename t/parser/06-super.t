@@ -5,7 +5,7 @@ use Test::More tests => 1;
 use Test::Text::DokuWiki;
 
 my $text = <<'END_DOKUWIKI';
-I <super>am</super> home!
+I <sup>am</sup> home!
 END_DOKUWIKI
 
 my $tree = <<'END_TREE';

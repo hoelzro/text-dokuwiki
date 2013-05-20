@@ -84,6 +84,12 @@ after BUILD => sub {
 
         return '<sup>' . escape_html($element->content) . '</sup>';
     });
+
+    $self->_add_emitter_rule_pre(DeletedElement, sub {
+        my ( $self, $element ) = @_;
+
+        return '<del>' . escape_html($element->content) . '</del>';
+    });
 };
 
 1;

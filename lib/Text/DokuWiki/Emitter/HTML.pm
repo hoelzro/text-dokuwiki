@@ -32,13 +32,22 @@ use aliased 'Text::DokuWiki::Link::WindowsShare' => 'WindowsShareLink';
 
 with 'Text::DokuWiki::Role::Emitter';
 
+sub _process_content {
+    my ( $content ) = @_;
+
+    $content = escape_html($content);
+    $content =~ s{\n}{<br />\n}g;
+
+    return $content;
+}
+
 after BUILD => sub {
     my ( $self ) = @_;
 
     $self->_add_emitter_rule_pre(TextElement, sub {
         my ( $self, $element ) = @_;
 
-        return escape_html($element->content);
+        return _process_content($element->content);
     });
 
     $self->_add_emitter_rule_pre(ParagraphElement, sub {
@@ -52,43 +61,43 @@ after BUILD => sub {
     $self->_add_emitter_rule_pre(BoldElement, sub {
         my ( $self, $element ) = @_;
 
-        return '<strong>' . escape_html($element->content) . '</strong>';
+        return '<strong>' . _process_content($element->content) . '</strong>';
     });
 
     $self->_add_emitter_rule_pre(ItalicElement, sub {
         my ( $self, $element ) = @_;
 
-        return '<em>' . escape_html($element->content) . '</em>';
+        return '<em>' . _process_content($element->content) . '</em>';
     });
 
     $self->_add_emitter_rule_pre(UnderlinedElement, sub {
         my ( $self, $element ) = @_;
 
-        return '<em class="u">' . escape_html($element->content) . '</em>';
+        return '<em class="u">' . _process_content($element->content) . '</em>';
     });
 
     $self->_add_emitter_rule_pre(MonospaceElement, sub {
         my ( $self, $element ) = @_;
 
-        return '<code>' . escape_html($element->content) . '</code>';
+        return '<code>' . _process_content($element->content) . '</code>';
     });
 
     $self->_add_emitter_rule_pre(SubscriptElement, sub {
         my ( $self, $element ) = @_;
 
-        return '<sub>' . escape_html($element->content) . '</sub>';
+        return '<sub>' . _process_content($element->content) . '</sub>';
     });
 
     $self->_add_emitter_rule_pre(SuperscriptElement, sub {
         my ( $self, $element ) = @_;
 
-        return '<sup>' . escape_html($element->content) . '</sup>';
+        return '<sup>' . _process_content($element->content) . '</sup>';
     });
 
     $self->_add_emitter_rule_pre(DeletedElement, sub {
         my ( $self, $element ) = @_;
 
-        return '<del>' . escape_html($element->content) . '</del>';
+        return '<del>' . _process_content($element->content) . '</del>';
     });
 };
 

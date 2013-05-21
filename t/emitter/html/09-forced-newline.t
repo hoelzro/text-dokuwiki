@@ -10,7 +10,7 @@ This is\\ a forced newline
 END_DOKUWIKI
 
 my $html = Text::DokuWiki::Emitter::HTML->emit($doc);
-is $html, "<p>This is\na forced newline</p>";
+is $html, "<p>This is<br />\na forced newline</p>";
 
 $doc = Text::DokuWiki->parse(<<'END_DOKUWIKI');
 This is \\not a forced newline

@@ -436,6 +436,8 @@ sub test_doc {
            $doc  = $doku->parse($doc);
     }
 
+    my $in_todo = Test::More->builder->in_todo;
+
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     my ( $ok, $diag );
@@ -455,7 +457,9 @@ sub test_doc {
         diag($diag->{'message'});
         diag("expected tree:\n$expected_tree");
         diag('got tree:');
-        dump_tree($doc, $diag->{'path'});
+        unless($in_todo) {
+            dump_tree($doc, $diag->{'path'});
+        }
     }
 }
 

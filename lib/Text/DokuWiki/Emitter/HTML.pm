@@ -99,6 +99,36 @@ after BUILD => sub {
 
         return '<del>' . _process_content($element->content) . '</del>';
     });
+
+    $self->_add_emitter_rule_pre(LinkElement, sub {
+        my ( $self, $element ) = @_;
+
+        my $link = $element->link;
+        my $location;
+        my $name;
+
+        if($link->isa(InternalLink)) {
+            $location = $link->page_name;
+            $name     = $link->label // $location;
+
+            if($link->section_name) {
+                $location .= '#' . $link->section_name;
+            }
+        } elsif($link->isa(ExternalLink)) {
+            $location = '' . $link->uri;
+            $name     = $link->label // $location;
+        }
+
+        return "<a href='$location'>$name</a>";
+    });
+
+    $self->_add_emitter_rule_pre(EmailAddressElement, sub {
+        my ( $self, $element ) = @_;
+
+        my $address = $element->content;
+
+        return "<a href='mailto:$address'>$address</a>";
+    });
 };
 
 1;

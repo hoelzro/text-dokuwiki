@@ -949,10 +949,10 @@ sub BUILD {
                 $parser->current_node($paragraph);
                 $last_child = $paragraph->last_child;
                 if($last_child->_is_textual) {
-                    $last_child->_append_content("\n");
+                    $last_child->_append_content(' ');
                 } else {
                     $last_child = $self->_append_child(TextElement,
-                        content => "\n",
+                        content => ' ',
                     );
                 }
                 $parser->current_node($last_child);

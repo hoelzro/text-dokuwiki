@@ -15,9 +15,9 @@ my $tree = <<'END_TREE';
 Paragraph
   Text 'Link One: '
   Link { link => ExternalLink->new(uri => URI->new('http://google.com'), label => 'Google') }
-  Text "\nLink Two: "
+  Text ' Link Two: '
   EmailAddress 'john.smith@example.com'
-  Text "\nLink Three: "
+  Text ' Link Three: '
   Link { link => ExternalLink->new(uri => URI->new('http://google.com#section'), label => 'Google Section') }
 END_TREE
 

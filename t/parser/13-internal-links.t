@@ -14,9 +14,9 @@ my $tree = <<'END_TREE';
 Paragraph
   Text 'Link One: '
   Link { link => InternalLink->new(page_name => 'pagename', label => 'text') }
-  Text "\nLink Two: "
+  Text ' Link Two: '
   Link { link => InternalLink->new(page_name => 'pagename', section_name => 'section') }
-  Text "\nLink Three: "
+  Text ' Link Three: '
   Link { link => InternalLink->new(page_name => 'pagename', section_name => 'section', label => 'text') }
 END_TREE
 

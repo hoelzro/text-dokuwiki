@@ -14,7 +14,7 @@ my $tree = <<'END_TREE';
 Paragraph
   Text 'This page contains '
   Footnote 'footnotes'
-  Text ".\n"
+  Text '. '
   Footnote 'Moar'
   Text ' footnotes!'
 END_TREE

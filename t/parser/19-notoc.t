@@ -16,7 +16,7 @@ END_DOKUWIKI
 my $tree = <<'END_TREE';
 Heading { content => ' Heading 1 ',   level => 1 }
 Paragraph
-  Text "This is a document without a table of\ncontents."
+  Text 'This is a document without a table of contents.'
 NoTOC
 END_TREE
 

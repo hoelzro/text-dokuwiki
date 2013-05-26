@@ -14,7 +14,7 @@ my $tree = <<'END_TREE';
 Paragraph
   Text 'Link One: '
   Link { link => ExternalLink->new(uri => URI->new('http://google.com')) }
-  Text "\nLink Two: "
+  Text ' Link Two: '
   Link { link => ExternalLink->new(uri => URI->new('https://google.com')) }
 END_TREE
 

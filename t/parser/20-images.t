@@ -18,19 +18,19 @@ END_DOKUWIKI
 my $tree = <<'END_TREE';
 Paragraph
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png') }
-  Text "\n"
+  Text ' '
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png'), width => 50 }
-  Text "\n"
+  Text ' '
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png'), width => 200, height => 50 }
-  Text "\n"
+  Text ' '
   Image { source => ExternalLink->new(uri => URI->new('http://php.net/images/php.gif')), width => 200, height => 50 }
-  Text "\n"
+  Text ' '
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png'), alignment => 'right' }
-  Text "\n"
+  Text ' '
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png'), alignment => 'left' }
-  Text "\n"
+  Text ' '
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png'), alignment => 'center' }
-  Text "\n"
+  Text ' '
   Image { source => InternalLink->new(page_name => 'dokuwiki-128.png'), alignment => 'center', caption => 'This is the caption' }
 END_TREE
 

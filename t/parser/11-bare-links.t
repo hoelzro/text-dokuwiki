@@ -30,7 +30,7 @@ Paragraph
   Link { link => ExternalLink->new(uri => URI->new('www.google.com')) }
 END_TREE
 
-SKIP: {
-    skip 'Schema-less bare links (www.google.com) are not implemented', 1;
+TODO: {
+    local $TODO = 'Schema-less bare links (www.google.com) are not implemented';
     test_doc $text, $tree;
 }

@@ -101,6 +101,15 @@ after BUILD => sub {
         return '<del>' . _process_content($element->content) . '</del>';
     });
 
+    $self->_add_emitter_rule_pre(HeadingElement, sub {
+        my ( $self, $element ) = @_;
+
+        my $level   = $element->level;
+        my $content = $element->content;
+
+        return "<h$level>$content</h$level>";
+    });
+
     $self->_add_emitter_rule_pre(LinkElement, sub {
         my ( $self, $element ) = @_;
 

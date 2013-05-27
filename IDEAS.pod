@@ -112,4 +112,26 @@ Example:
 
 =head2 Look over official DokuWiki tests, derive what you can
 
+=head1 FUN STUFF
+
+=over 4
+
+=item *
+
+Acronyms/abbreviations
+
+=item *
+
+CamelCase links
+
+=item *
+
+Emoticons (text-to-image)
+
+=item *
+
+Titles derived from first heading
+
+=back
+
 =cut

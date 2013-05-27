@@ -359,6 +359,7 @@ sub colorize {
     return colored(['on_red', 'yellow'], $value);
 }
 
+# XXX create a module for this
 sub dump_tree {
     my ( $doc, $highlight_path, $dumper, $indent_level ) = @_;
 

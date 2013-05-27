@@ -41,6 +41,7 @@ sub _process_content {
     return $content;
 }
 
+# XXX how to handle <title>?
 after BUILD => sub {
     my ( $self ) = @_;
 

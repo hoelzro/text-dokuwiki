@@ -12,6 +12,14 @@ sub parent {
     return undef;
 }
 
+sub as_html {
+    my ( $self ) = @_;
+
+    require Text::DokuWiki::Emitter::HTML;
+
+    return Text::DokuWiki::Emitter::HTML->emit($self);
+}
+
 1;
 
 __END__

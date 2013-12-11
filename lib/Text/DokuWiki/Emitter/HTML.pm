@@ -139,6 +139,17 @@ after BUILD => sub {
 
         return "<a href='mailto:$address'>$address</a>";
     });
+
+    # XXX Pygments? Other highlighter? (how can I override this with another role?)
+    $self->_add_emitter_rule_pre(CodeElement, sub {
+        my ( $self, $element ) = @_;
+
+        # Do I have to escape pre stuff?
+        my $content = escape_html($element->children->[0]->content);
+
+        # XXX CSS classes?
+        return "<pre>\n$content\n</pre>";
+    });
 };
 
 1;

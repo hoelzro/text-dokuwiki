@@ -41,6 +41,26 @@ sub _process_content {
     return $content;
 }
 
+sub _resolve_link {
+    my ( $self, $link ) = @_;
+
+    my ( $location, $name );
+
+    if($link->isa(InternalLink)) {
+        $location = $link->page_name;
+        $name     = $link->label // $location;
+
+        if($link->section_name) {
+            $location .= '#' . $link->section_name;
+        }
+    } elsif($link->isa(ExternalLink)) {
+        $location = '' . $link->uri;
+        $name     = $link->label // $location;
+    }
+
+    return ( $location, $name );
+}
+
 # XXX how to handle <title>?
 after BUILD => sub {
     my ( $self ) = @_;
@@ -114,20 +134,7 @@ after BUILD => sub {
         my ( $self, $element ) = @_;
 
         my $link = $element->link;
-        my $location;
-        my $name;
-
-        if($link->isa(InternalLink)) {
-            $location = $link->page_name;
-            $name     = $link->label // $location;
-
-            if($link->section_name) {
-                $location .= '#' . $link->section_name;
-            }
-        } elsif($link->isa(ExternalLink)) {
-            $location = '' . $link->uri;
-            $name     = $link->label // $location;
-        }
+        my ( $location, $name ) = $self->_resolve_link($link);
 
         return "<a href='$location'>$name</a>";
     });

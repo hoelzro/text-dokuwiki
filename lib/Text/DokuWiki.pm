@@ -427,7 +427,6 @@ sub _get_parser_rules {
     ];
 }
 
-# XXX cache
 sub _not_first_chars {
     my ( $self ) = @_;
 
@@ -1029,14 +1028,31 @@ sub parse {
     my $doc = Text::DokuWiki::Document->new;
     $self->current_node($doc);
 
+    my %state_to_rules = %{ $self->parser_rules };
+    my %state_to_not_first_chars;
+
+    foreach my $state (keys %state_to_rules) {
+        $state_to_rules{ $state } = [
+            @{ $state_to_rules{ $state } },
+            map {
+                @{ $self->parser_rules->{$_} }
+            } @{ $self->state_augmentations->{$state} || [] }
+        ];
+
+        # kind of a hack, but gets the job done
+        $self->_push_state($state);
+        $state_to_not_first_chars{ $state } = $self->_not_first_chars;
+        $self->_pop_state;
+    }
+
     # XXX normalize newlines?
 
     TEXT_LOOP:
     while($text) {
         # XXX use \G?
         # XXX compile each component regex into a single regex?
-        # XXX I'll probably want to inline this
-        my $rules = $self->_get_parser_rules;
+        my $state = $self->_current_state;
+        my $rules = $state_to_rules{ $state };
 
         foreach my $parser_rule (@$rules) {
             my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
@@ -1052,8 +1068,7 @@ sub parse {
             }
         }
 
-        # XXX inline, dirty on state change
-        my $not_first_chars_re = $self->_not_first_chars;
+        my $not_first_chars_re = $state_to_not_first_chars{ $state };
 
         #if($self->_current_state eq 'inline') {
             # XXX move this into inline rules

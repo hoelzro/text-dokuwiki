@@ -227,7 +227,7 @@ sub _add_parser_rule {
 
     my %copy = %params;
 
-    my @required = qw{name pattern handler state};
+    my @required = qw{name pattern handler state first_char};
     my @optional = qw{before after};
 
     delete @copy{@optional}; # we'll process these properly later
@@ -427,6 +427,27 @@ sub _get_parser_rules {
     ];
 }
 
+# XXX cache
+sub _not_first_chars {
+    my ( $self ) = @_;
+
+    my $rules       = $self->_get_parser_rules;
+    my @first_chars = map { $_->{'first_char'} } @$rules;
+
+    foreach my $char (@first_chars) {
+        if($char eq '\\') {
+            $char = '\\\\';
+        }
+    }
+    push @first_chars, '\n';
+    my %uniq = map { $_ => 1 } @first_chars;
+    @first_chars = keys %uniq;
+
+    # XXX special case for @first_chars contains ''
+
+    return '[^' . join('', @first_chars) . ']';
+}
+
 sub _augment_state {
     my ( $self, $state, @augmentations ) = @_;
 
@@ -438,38 +459,43 @@ sub BUILD {
 
     ### Inline Rules
     $self->_add_parser_rule(
-        name    => 'bold',
-        state   => 'inline',
-        pattern => qr/[*][*]/,
-        handler => $self->_self_closing_element(BoldElement),
+        name       => 'bold',
+        state      => 'inline',
+        pattern    => qr/[*][*]/,
+        first_char => '*',
+        handler    => $self->_self_closing_element(BoldElement),
     );
 
     $self->_add_parser_rule(
-        name    => 'italic',
-        state   => 'inline',
-        pattern => qr{//},
-        handler => $self->_self_closing_element(ItalicElement),
+        name       => 'italic',
+        state      => 'inline',
+        pattern    => qr{//},
+        first_char => '/',
+        handler    => $self->_self_closing_element(ItalicElement),
     );
 
     $self->_add_parser_rule(
-        name    => 'underlined',
-        state   => 'inline',
-        pattern => qr/__/,
-        handler => $self->_self_closing_element(UnderlinedElement),
+        name       => 'underlined',
+        state      => 'inline',
+        pattern    => qr/__/,
+        first_char => '_',
+        handler    => $self->_self_closing_element(UnderlinedElement),
     );
 
     $self->_add_parser_rule(
-        name    => 'monospace',
-        state   => 'inline',
-        pattern => qr/''/,
-        handler => $self->_self_closing_element(MonospaceElement),
+        name       => 'monospace',
+        state      => 'inline',
+        pattern    => qr/''/,
+        first_char => q{'},
+        handler    => $self->_self_closing_element(MonospaceElement),
     );
 
     $self->_add_parser_rule(
-        name    => 'forced_newline',
-        state   => 'inline',
-        pattern => qr{\\\\[\s\n]},
-        handler => sub {
+        name       => 'forced_newline',
+        state      => 'inline',
+        pattern    => qr{\\\\[\s\n]},
+        first_char => '\\',
+        handler    => sub {
             my ( $parser ) = @_;
 
             unless($self->current_node->_is_textual) {
@@ -481,10 +507,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'nowiki',
-        state   => 'inline',
-        pattern => qr{<nowiki>(?<content>.*?)</nowiki>},
-        handler => sub {
+        name       => 'nowiki',
+        state      => 'inline',
+        pattern    => qr{<nowiki>(?<content>.*?)</nowiki>},
+        first_char => '<',
+        handler    => sub {
             my ( $parser ) = @_;
 
             unless($self->current_node->_is_textual) {
@@ -495,10 +522,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'nowiki_short',
-        state   => 'inline',
-        pattern => qr/%%(?<content>.*?)%%/,
-        handler => sub {
+        name       => 'nowiki_short',
+        state      => 'inline',
+        pattern    => qr/%%(?<content>.*?)%%/,
+        first_char => '%',
+        handler    => sub {
             my ( $parser ) = @_;
 
             unless($self->current_node->_is_textual) {
@@ -509,10 +537,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'open_pseudo_html',
-        state   => 'inline',
-        pattern => $OPEN_PSEUDO_HTML_RE,
-        handler => sub {
+        name       => 'open_pseudo_html',
+        state      => 'inline',
+        pattern    => $OPEN_PSEUDO_HTML_RE,
+        first_char => '<',
+        handler    => sub {
             my ( $parser ) = @_;
 
             $parser->_add_pseudo_html_node($+{'tag_name'});
@@ -521,10 +550,11 @@ sub BUILD {
 
     # XXX add a state for this?
     $self->_add_parser_rule(
-        name => 'close_pseudo_html',
-        state => 'inline',
-        pattern => $CLOSE_PSEUDO_HTML_RE,
-        handler => sub {
+        name       => 'close_pseudo_html',
+        state      => 'inline',
+        pattern    => $CLOSE_PSEUDO_HTML_RE,
+        first_char => '<',
+        handler    => sub {
             my ( $parser ) = @_;
 
             $parser->_remove_pseudo_html_node($+{'tag_name'});
@@ -532,10 +562,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'external_link_uri',
-        state   => 'inline',
-        pattern => $RE{URI}{HTTP}{-scheme => qr/https?/},
-        handler => sub {
+        name       => 'external_link_uri',
+        state      => 'inline',
+        pattern    => $RE{URI}{HTTP}{-scheme => qr/https?/},
+        first_char => 'h',
+        handler    => sub {
             my ( $parser, $match ) = @_;
 
             $parser->_pop_text_node;
@@ -548,10 +579,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'external_link_mail',
-        state   => 'inline',
-        pattern => qr/<(?<address>$RE{Email}{Address})>/,
-        handler => sub {
+        name       => 'external_link_mail',
+        state      => 'inline',
+        pattern    => qr/<(?<address>$RE{Email}{Address})>/,
+        first_char => '<',
+        handler    => sub {
             my ( $parser, $match ) = @_;
 
             $parser->_pop_text_node;
@@ -562,10 +594,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'internal_link',
-        state   => 'inline',
-        pattern => $INTERNAL_LINK_RE,
-        handler => sub {
+        name       => 'internal_link',
+        state      => 'inline',
+        pattern    => $INTERNAL_LINK_RE,
+        first_char => '[',
+        handler    => sub {
             my ( $parser, $match ) = @_;
 
             $parser->_pop_text_node;
@@ -577,10 +610,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'image',
-        state   => 'inline',
-        pattern => $IMAGE_RE,
-        handler => sub {
+        name       => 'image',
+        state      => 'inline',
+        pattern    => $IMAGE_RE,
+        first_char => '{',
+        handler    => sub {
             my ( $parser, $match ) = @_;
 
             $parser->_pop_text_node;
@@ -596,10 +630,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'footnotes',
-        state   => 'inline',
-        pattern => qr/[(][(](?<footnote>.*?)[)][)]/,
-        handler => sub {
+        name       => 'footnotes',
+        state      => 'inline',
+        pattern    => qr/[(][(](?<footnote>.*?)[)][)]/,
+        first_char => '(',
+        handler    => sub {
             my ( $parser, $match ) = @_;
 
             $parser->_pop_text_node;
@@ -610,10 +645,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name => 'inline_code_block',
-        state => 'inline',
-        pattern => $CODE_BLOCK_RE,
-        handler => sub {
+        name       => 'inline_code_block',
+        state      => 'inline',
+        pattern    => $CODE_BLOCK_RE,
+        first_char => '<',
+        handler    => sub {
             my ( $parser ) = @_;
 
             $parser->_finish_paragraph;
@@ -640,10 +676,11 @@ sub BUILD {
 
     # XXX this has to be the first rule in paragraph
     $self->_add_parser_rule(
-        name    => 'end_paragraph',
-        state   => 'paragraph',
-        pattern => qr/\n/,
-        handler => sub {
+        name       => 'end_paragraph',
+        state      => 'paragraph',
+        pattern    => qr/\n/,
+        first_char => '\n',
+        handler    => sub {
             my ( $parser ) = @_;
 
             $parser->_finish_paragraph;
@@ -653,10 +690,11 @@ sub BUILD {
 
     ### Code Block Rules
     $self->_add_parser_rule(
-        name    => 'end_code_block_indented',
-        state   => 'code_block_indented',
-        pattern => qr/\n/,
-        handler => sub {
+        name       => 'end_code_block_indented',
+        state      => 'code_block_indented',
+        pattern    => qr/\n/,
+        first_char => '\n',
+        handler    => sub {
             my ( $parser ) = @_;
 
             $parser->_pop_text_node;
@@ -666,10 +704,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'nested_code_block',
-        state   => 'code_block_code',
-        pattern => qr/<code.*?>/,
-        handler => sub {
+        name       => 'nested_code_block',
+        state      => 'code_block_code',
+        pattern    => qr/<code.*?>/,
+        first_char => '<',
+        handler    => sub {
             my ( $parser, $value ) = @_;
 
             # XXX I swear, this needs to be a helper method
@@ -688,10 +727,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name  => 'end_code_block_code',
-        state => 'code_block_code',
-        pattern => qr{\n*</code>},
-        handler => sub {
+        name       => 'end_code_block_code',
+        state      => 'code_block_code',
+        pattern    => qr{\n*</code>},
+        first_char => '<', # XXX or \n...
+        handler    => sub {
             my ( $parser, $value ) = @_;
 
             my $code = $parser->current_node;
@@ -713,10 +753,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name  => 'end_code_block_file',
-        state => 'code_block_file',
-        pattern => qr{\n*</file>},
-        handler => sub {
+        name       => 'end_code_block_file',
+        state      => 'code_block_file',
+        pattern    => qr{\n*</file>},
+        first_char => '<', # XXX or <...
+        handler    => sub {
             my ( $parser, $value ) = @_;
 
             my $code = $parser->current_node;
@@ -733,10 +774,11 @@ sub BUILD {
 
     # XXX do we need these rules in the paragraph state to properly do them?
     $self->_add_parser_rule(
-        name    => 'notoc',
-        state   => 'top',
-        pattern => qr/~~NOTOC~~/,
-        handler => sub {
+        name       => 'notoc',
+        state      => 'top',
+        pattern    => qr/~~NOTOC~~/,
+        first_char => '~',
+        handler    => sub {
             my ( $parser ) = @_;
 
             $parser->_append_child(NoTOCElement);
@@ -744,10 +786,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'nocache',
-        state   => 'top',
-        pattern => qr/~~NOCACHE~~/,
-        handler => sub {
+        name       => 'nocache',
+        state      => 'top',
+        pattern    => qr/~~NOCACHE~~/,
+        first_char => '~',
+        handler    => sub {
             my ( $parser ) = @_;
 
             $parser->_append_child(NoCacheElement);
@@ -755,10 +798,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'section_header',
-        state   => 'top',
-        pattern => $HEADER_RE,
-        handler => sub {
+        name       => 'section_header',
+        state      => 'top',
+        pattern    => $HEADER_RE,
+        first_char => '=', # XXX should this be '=' or ' '?
+        handler    => sub {
             my ( $parser, $match ) = @_;
             $parser->_finish_paragraph;
             $parser->_append_child(HeadingElement,
@@ -769,10 +813,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'start_list',
-        state   => 'top',
-        pattern => qr/^(?<indent>\s{2,})(?<list_char>[*-])/,
-        handler => sub {
+        name       => 'start_list',
+        state      => 'top',
+        pattern    => qr/^(?<indent>\s{2,})(?<list_char>[*-])/,
+        first_char => ' ', # XXX could be any \s char...
+        handler    => sub {
             my ( $parser ) = @_;
 
             my $ordered = ($+{'list_char'} eq '-') ? 1 : 0;
@@ -822,10 +867,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name => 'end_list',
-        state => 'list',
-        pattern => qr/\n/,
-        handler => sub {
+        name       => 'end_list',
+        state      => 'list',
+        pattern    => qr/\n/,
+        first_char => '\n',
+        handler    => sub {
             my ( $parser ) = @_;
 
             my $topmost_list;
@@ -847,10 +893,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'close_paragraph',
-        state   => 'top',
-        pattern => qr/\n/,
-        handler => sub {
+        name       => 'close_paragraph',
+        state      => 'top',
+        pattern    => qr/\n/,
+        first_char => '\n',
+        handler    => sub {
             my ( $parser ) = @_;
 
             my $last_child = $parser->current_node->last_child;
@@ -862,10 +909,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'quote',
-        state   => 'top',
-        pattern => qr/^(?<quote_level>[>]+)(?<content>.*)$/m,
-        handler => sub {
+        name       => 'quote',
+        state      => 'top',
+        pattern    => qr/^(?<quote_level>[>]+)(?<content>.*)$/m,
+        first_char => '>',
+        handler    => sub {
             my ( $parser ) = @_;
 
             my $quote = $parser->_append_child(QuoteElement,
@@ -879,10 +927,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'code_block_indented',
-        state   => 'top',
-        pattern => qr/^  /,
-        handler => sub {
+        name       => 'code_block_indented',
+        state      => 'top',
+        pattern    => qr/^  /,
+        first_char => ' ',
+        handler    => sub {
             my ( $parser ) = @_;
 
             my $last_child = $parser->current_node->last_child;
@@ -911,10 +960,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'code_block_code',
-        state   => 'top',
-        pattern => $CODE_BLOCK_RE,
-        handler => sub {
+        name       => 'code_block_code',
+        state      => 'top',
+        pattern    => $CODE_BLOCK_RE,
+        first_char => '<',
+        handler    => sub {
             my ( $parser ) = @_;
 
             my %attributes;
@@ -936,10 +986,11 @@ sub BUILD {
     );
 
     $self->_add_parser_rule(
-        name    => 'start_paragraph',
-        state   => 'top',
-        pattern => qr//,
-        handler => sub {
+        name       => 'start_paragraph',
+        state      => 'top',
+        pattern    => qr//,
+        first_char => '',
+        handler    => sub {
             my ( $parser ) = @_;
 
             my $last_child = $parser->current_node->last_child;
@@ -1001,12 +1052,16 @@ sub parse {
             }
         }
 
+        # XXX inline, dirty on state change
+        my $not_first_chars_re = $self->_not_first_chars;
+
         #if($self->_current_state eq 'inline') {
             # XXX move this into inline rules
             # XXX I think there's probably a more efficient way to go about this;
             #     namely, finding all of the possible "next chars" for the paragraph
             #     state and matching an arbitrarily long sequence of *not* those
-            if($text =~ /\A./sp) {
+            # XXX another thing...if I compile into a single regexp for the current state, I could do (.*?)$RE
+            if($text =~ /\A(${not_first_chars_re}+|.)/sp) {
                 unless($self->current_node->_is_textual) {
                     $self->_down(TextElement);
                 }

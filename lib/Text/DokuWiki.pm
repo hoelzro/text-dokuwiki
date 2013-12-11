@@ -1030,14 +1030,37 @@ sub parse {
 
     my %state_to_rules = %{ $self->parser_rules };
     my %state_to_not_first_chars;
+    my %state_matches_any;
 
     foreach my $state (keys %state_to_rules) {
-        $state_to_rules{ $state } = [
+        my @rules = (
             @{ $state_to_rules{ $state } },
             map {
                 @{ $self->parser_rules->{$_} }
             } @{ $self->state_augmentations->{$state} || [] }
-        ];
+        );
+
+        my %char_to_rules;
+
+        foreach my $rule (@rules) {
+            my $first_char = $rule->{'first_char'};
+            if($first_char eq '') {
+                $state_matches_any{$state} = 1;
+                last;
+            } elsif(length($first_char) > 1) {
+                # be wary of that eval...
+                $first_char = eval(qq{"$first_char"});
+            }
+            push @{ $char_to_rules{ $first_char } }, $rule;
+        }
+
+        if($state_matches_any{$state}) {
+            $state_to_rules{$state} = \@rules;
+        } else {
+            # XXX I'm not a big fan of this special case...
+            $char_to_rules{"\n"}    = \@rules;
+            $state_to_rules{$state} = \%char_to_rules;
+        }
 
         # kind of a hack, but gets the job done
         $self->_push_state($state);
@@ -1049,22 +1072,32 @@ sub parse {
 
     TEXT_LOOP:
     while($text) {
+        my $first_char = substr($text, 0, 1);
         # XXX use \G?
         # XXX compile each component regex into a single regex?
         my $state = $self->_current_state;
-        my $rules = $state_to_rules{ $state };
 
-        foreach my $parser_rule (@$rules) {
-            my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
+        my $rules;
 
-            if($text =~ /\A$pattern/p) {
-                if($IS_DEBUGGING) {
-                    $self->_diag('text matched pattern ' . $parser_rule->{'name'});
+        if($state_matches_any{$state}) {
+            $rules = $state_to_rules{ $state };
+        } else {
+            $rules = $state_to_rules{ $state }{ $first_char };
+        }
+
+        if($rules) {
+            foreach my $parser_rule (@$rules) {
+                my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
+
+                if($text =~ /\A$pattern/p) {
+                    if($IS_DEBUGGING) {
+                        $self->_diag('text matched pattern ' . $parser_rule->{'name'});
+                    }
+                    # XXX what rules actually make use of the passed-in match?
+                    $handler->($self, ${^MATCH});
+                    $text = ${^POSTMATCH};
+                    next TEXT_LOOP;
                 }
-                # XXX what rules actually make use of the passed-in match?
-                $handler->($self, ${^MATCH});
-                $text = ${^POSTMATCH};
-                next TEXT_LOOP;
             }
         }
 

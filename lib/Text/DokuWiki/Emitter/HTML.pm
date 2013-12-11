@@ -157,6 +157,16 @@ after BUILD => sub {
         # XXX CSS classes?
         return "<pre>\n$content\n</pre>";
     });
+
+    # XXX alignment, caption
+    $self->_add_emitter_rule_pre(ImageElement, sub {
+        my ( $self, $element ) = @_;
+
+        my ( $source ) = $self->_resolve_link($element->source);
+
+        # XXX alt?
+        return "<img src='$source' />";
+    });
 };
 
 1;

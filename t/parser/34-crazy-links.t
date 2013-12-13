@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Test::Text::DokuWiki qw(:DEFAULT :link_classes);
 use URI;
 
@@ -43,4 +43,14 @@ Paragraph
   Link { link => ExternalLink->new(uri => URI->new('http://google.com'), label => 'Google') }
   Text ' '
   Link { link => ExternalLink->new(uri => URI->new('http://ddg.gg'), label => 'DuckDuckGo') }
+END_TREE
+
+test_doc '[[http://google.com?q=foo]bar]]', <<'END_TREE';
+Paragraph
+  Link { link => ExternalLink->new(uri => URI->new('http://google.com?q=foo]bar')) }
+END_TREE
+
+test_doc '[[http://google.com|name with a | in it]]', <<'END_TREE';
+Paragraph
+  Link { link => ExternalLink->new(uri => URI->new('http://google.com'), label => 'name with a | in it') }
 END_TREE

@@ -1032,7 +1032,7 @@ sub parse {
 
     my %state_to_rules = %{ $self->parser_rules };
     my %state_to_not_first_chars;
-    my %state_matches_any;
+    my %state_has_fallback;
 
     foreach my $state (keys %state_to_rules) {
         my @rules = (
@@ -1044,14 +1044,12 @@ sub parse {
 
         my %char_to_rules;
 
-        RULES_LOOP:
         foreach my $rule (@rules) {
             my $first_chars = $rule->{'first_char'};
 
             foreach my $first_char (ref($first_chars) ? @$first_chars : $first_chars) {
                 if($first_char eq '') {
-                    $state_matches_any{$state} = 1;
-                    last RULES_LOOP;
+                    $state_has_fallback{$state} = 1;
                 } elsif(length($first_char) > 1) {
                     # be wary of that eval...
                     $first_char = eval(qq{"$first_char"});
@@ -1060,11 +1058,7 @@ sub parse {
             }
         }
 
-        if($state_matches_any{$state}) {
-            $state_to_rules{$state} = \@rules;
-        } else {
-            $state_to_rules{$state} = \%char_to_rules;
-        }
+        $state_to_rules{$state} = \%char_to_rules;
 
         # kind of a hack, but gets the job done
         $self->_push_state($state);
@@ -1081,15 +1075,10 @@ sub parse {
         # XXX compile each component regex into a single regex?
         my $state = $self->_current_state;
 
-        my $rules;
+        my @metarules = @{ $state_to_rules{$state} }{ $first_char, '' };
+        foreach my $rules (@metarules) {
+            next unless $rules;
 
-        if($state_matches_any{$state}) {
-            $rules = $state_to_rules{ $state };
-        } else {
-            $rules = $state_to_rules{ $state }{ $first_char };
-        }
-
-        if($rules) {
             foreach my $parser_rule (@$rules) {
                 my ( $pattern, $handler ) = @{$parser_rule}{qw/pattern handler/};
 

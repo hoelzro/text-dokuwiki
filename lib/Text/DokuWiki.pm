@@ -441,7 +441,6 @@ sub _not_first_chars {
             $char = '\\\\';
         }
     }
-    push @first_chars, '\n';
     my %uniq = map { $_ => 1 } @first_chars;
     @first_chars = keys %uniq;
 
@@ -1064,8 +1063,6 @@ sub parse {
         if($state_matches_any{$state}) {
             $state_to_rules{$state} = \@rules;
         } else {
-            # XXX I'm not a big fan of this special case...
-            $char_to_rules{"\n"}    = \@rules;
             $state_to_rules{$state} = \%char_to_rules;
         }
 

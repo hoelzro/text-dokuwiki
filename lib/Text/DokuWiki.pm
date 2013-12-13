@@ -732,7 +732,7 @@ sub BUILD {
         name       => 'end_code_block_code',
         state      => 'code_block_code',
         pattern    => qr{\n*</code>},
-        first_char => '<', # XXX or \n...
+        first_char => ['\n', '<'],
         handler    => sub {
             my ( $parser, $value ) = @_;
 
@@ -758,7 +758,7 @@ sub BUILD {
         name       => 'end_code_block_file',
         state      => 'code_block_file',
         pattern    => qr{\n*</file>},
-        first_char => '<', # XXX or <...
+        first_char => ['\n', '<'],
         handler    => sub {
             my ( $parser, $value ) = @_;
 

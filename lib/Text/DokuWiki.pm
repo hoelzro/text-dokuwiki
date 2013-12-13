@@ -431,7 +431,10 @@ sub _not_first_chars {
     my ( $self ) = @_;
 
     my $rules       = $self->_get_parser_rules;
-    my @first_chars = map { $_->{'first_char'} } @$rules;
+    my @first_chars = map {
+        ref($_->{'first_char'})
+            ? @{ $_->{'first_char'} } : $_->{'first_char'}
+    } @$rules;
 
     foreach my $char (@first_chars) {
         if($char eq '\\') {
@@ -1042,16 +1045,20 @@ sub parse {
 
         my %char_to_rules;
 
+        RULES_LOOP:
         foreach my $rule (@rules) {
-            my $first_char = $rule->{'first_char'};
-            if($first_char eq '') {
-                $state_matches_any{$state} = 1;
-                last;
-            } elsif(length($first_char) > 1) {
-                # be wary of that eval...
-                $first_char = eval(qq{"$first_char"});
+            my $first_chars = $rule->{'first_char'};
+
+            foreach my $first_char (ref($first_chars) ? @$first_chars : $first_chars) {
+                if($first_char eq '') {
+                    $state_matches_any{$state} = 1;
+                    last RULES_LOOP;
+                } elsif(length($first_char) > 1) {
+                    # be wary of that eval...
+                    $first_char = eval(qq{"$first_char"});
+                }
+                push @{ $char_to_rules{ $first_char } }, $rule;
             }
-            push @{ $char_to_rules{ $first_char } }, $rule;
         }
 
         if($state_matches_any{$state}) {

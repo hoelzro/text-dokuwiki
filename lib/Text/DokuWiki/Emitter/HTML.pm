@@ -153,7 +153,7 @@ after BUILD => sub {
 
         # Do I have to escape pre stuff?
         my $content = escape_html($element->children->[0]->content);
-
+        @{ $element->children } = (); # XXX =(
         # XXX CSS classes?
         return "<pre>\n$content\n</pre>";
     });

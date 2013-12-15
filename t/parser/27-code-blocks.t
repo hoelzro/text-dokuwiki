@@ -151,6 +151,7 @@ plan tests => (@code_block_types / 2 * 6 + 5);
 
 my $iterator = natatime(2, @code_block_types);
 
+# XXX test_doc should work with the same Text::DokuWiki object
 while(my ( $name, $creator ) = $iterator->()) {
     my $code = 'A sample code block with no special highlighting.';
     my $text = $creator->(<<'END_DOKUWIKI', $code);

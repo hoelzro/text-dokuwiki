@@ -154,8 +154,12 @@ after BUILD => sub {
         # Do I have to escape pre stuff?
         my $content = escape_html($element->children->[0]->content);
         @{ $element->children } = (); # XXX =(
-        # XXX CSS classes?
-        return "<pre>\n$content\n</pre>";
+        my $attrs = '';
+        if($element->language ne 'text') {
+            my $language = $element->language;
+            $attrs = " class='$language'";
+        }
+        return "<pre$attrs>\n$content\n</pre>";
     });
 
     # XXX alignment, caption

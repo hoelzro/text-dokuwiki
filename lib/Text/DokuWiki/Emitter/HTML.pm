@@ -159,7 +159,13 @@ after BUILD => sub {
             my $language = $element->language;
             $attrs = " class='$language'";
         }
-        return "<pre$attrs>\n$content\n</pre>";
+        my $html = "<pre$attrs>\n$content\n</pre>";
+
+        if(my $filename = $element->filename) {
+            $html = "<dl class='code'><dt><a href='...'>$filename</a></dt><dd>$html</dd></dl>";
+        }
+
+        return $html;
     });
 
     # XXX alignment, caption

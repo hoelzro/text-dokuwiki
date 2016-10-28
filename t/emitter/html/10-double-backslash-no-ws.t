@@ -5,10 +5,10 @@ use warnings;
 use Test::More tests => 1;
 
 use Text::DokuWiki;
-use Test::HTML::Differences;
+use Test::Text::DokuWiki;
 
 my $html = Text::DokuWiki->parse(<<'END_DOKUWIKI')->as_html;
 This is not \\a forced newline
 END_DOKUWIKI
 
-eq_or_diff_html $html, '<p>This is not \\\\a forced newline</p>';
+is_html_equal $html, '<p>This is not \\\\a forced newline</p>';

@@ -5,7 +5,7 @@ use warnings;
 use Test::More tests => 1;
 
 use Text::DokuWiki;
-use Test::HTML::Differences;
+use Test::Text::DokuWiki;
 
 my $html = Text::DokuWiki->parse(<<'END_DOKUWIKI')->as_html;
 ====== Heading One ======
@@ -16,7 +16,7 @@ my $html = Text::DokuWiki->parse(<<'END_DOKUWIKI')->as_html;
 = Heading Six =
 END_DOKUWIKI
 
-eq_or_diff_html $html, <<'END_HTML';
+is_html_equal $html, <<'END_HTML';
 <h1>Heading One</h1>
 <h2>Heading Two</h2>
 <h3>Heading Three</h3>

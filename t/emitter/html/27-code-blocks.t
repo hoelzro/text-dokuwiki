@@ -7,7 +7,6 @@ use utf8;
 use List::MoreUtils qw(natatime);
 use Test::More;
 use Test::Text::DokuWiki;
-use Test::HTML::Differences;
 
 sub create_indented_code_block {
     my ( $text, $code ) = @_;
@@ -163,7 +162,7 @@ A paragraph.
 Another paragraph.
 END_DOKUWIKI
 
-    eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+    is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <p>A paragraph.</p>
 <pre>
 A sample code block with no special highlighting.
@@ -179,7 +178,7 @@ Line!
 END_DOKUWIKI
 
 
-    eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+    is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <pre>
 More
 Than
@@ -194,7 +193,7 @@ Code
     Indent!
 END_DOKUWIKI
 
-    eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+    is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <pre>
 Code
   With
@@ -204,7 +203,7 @@ END_HTML
 
     $text = $creator->('I have some **fake** markup in my code block.');
 
-    eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+    is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <pre>
 I have some **fake** markup in my code block.
 </pre>
@@ -222,7 +221,7 @@ END_HTML
 </html>
 END_DOKUWIKI
 
-    eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+    is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <pre>
 &lt;html&gt;
   &lt;body&gt;
@@ -240,7 +239,7 @@ END_HTML
 </html>
 END_DOKUWIKI
 
-    eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+    is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <pre>
 &lt;html&gt;
   &lt;body&gt;
@@ -257,7 +256,7 @@ $text = <<'END_DOKUWIKI';
  This is actually a paragraph.
 END_DOKUWIKI
 
-eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <p> This is actually a paragraph.</p>
 END_HTML
 
@@ -270,7 +269,7 @@ public static void main(String[] args) {
 END_DOKUWIKI
 
 # XXX NOTE: We don't have links for Java classes
-eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <pre class='java'>
 public static void main(String[] args) {
     System.out.println(&quot;Hello, World!&quot;);
@@ -286,7 +285,7 @@ public static void main(String[] args) {
 </code>
 END_DOKUWIKI
 
-eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <pre>
 public static void main(String[] args) {
     System.out.println(&quot;Hello, World!&quot;);
@@ -303,7 +302,7 @@ public static void main(String[] args) {
 END_DOKUWIKI
 
 # XXX href?
-eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <dl class='code'>
 <dt><a href=''>Test.java</a></dt>
 <dd>
@@ -320,7 +319,7 @@ $text = <<'END_DOKUWIKI';
 This is a paragraph with <code>embedded</code> code.
 END_DOKUWIKI
 
-eq_or_diff_html($dw->parse($text)->as_html, <<'END_HTML');
+is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <p>This is a paragraph with </p>
 <pre>embedded</pre>
 <p> code.</p>

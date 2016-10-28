@@ -5,6 +5,7 @@ use warnings;
 use parent 'Exporter';
 
 use Data::Dumper;
+use HTML::Differences qw(html_text_diff);
 use List::MoreUtils qw(none uniq);
 use Scalar::Util qw(blessed);
 use Text::DokuWiki;
@@ -33,7 +34,7 @@ my @ELEMENT_CLASSES = qw{
     ParagraphElement
 };
 
-our @EXPORT      = qw(test_doc);
+our @EXPORT      = qw(test_doc is_html_equal);
 our @EXPORT_OK   = ( @EXPORT, @LINK_CLASSES, @ELEMENT_CLASSES );
 our %EXPORT_TAGS = (
     element_classes => \@ELEMENT_CLASSES,
@@ -462,6 +463,24 @@ sub test_doc {
             dump_tree($doc, $diag->{'path'});
         }
     }
+}
+
+sub _normalize_html {
+    my ( $html ) = @_;
+
+    return $html;
+}
+
+sub is_html_equal {
+    my ( $got, $expected ) = @_;
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $got      = _normalize_html($got);
+    $expected = _normalize_html($expected);
+
+    my $diff = html_text_diff($got, $expected);
+    ok($diff eq '') or diag($diff);
 }
 
 if(@ARGV) {

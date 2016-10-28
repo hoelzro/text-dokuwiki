@@ -465,8 +465,28 @@ sub test_doc {
     }
 }
 
+my %entity_table;
+my %invalid_html_ords;;
+
+my @entities = (
+    [ amp  => q{&} ],
+    [ apos => q{'} ],
+    [ gt   => q{>} ],
+    [ lt   => q{<} ],
+    [ quot => q{"} ],
+);
+
+for my $pair (@entities) {
+    my ( $name, $char ) = @$pair;
+    $entity_table{$name} = ord($char);
+    $invalid_html_ords{ord($char)} = 1;
+}
+
 sub _normalize_html {
     my ( $html ) = @_;
+
+    $html =~ s/&(\w+);/'&#' . ($entity_table{$1} or die "Invalid HTML entity $1") . ';'/ge;
+    $html =~ s/&#(\d+);/($invalid_html_ords{$1}) ? "&#$1;" : chr($1)/ge;
 
     return $html;
 }

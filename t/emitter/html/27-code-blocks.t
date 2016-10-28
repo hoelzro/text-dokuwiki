@@ -225,7 +225,7 @@ END_DOKUWIKI
 <pre>
 &lt;html&gt;
   &lt;body&gt;
-    Here's some fake HTML with &lt;code&gt;code&lt;/code&gt; in it.
+    Here&apos;s some fake HTML with &lt;code&gt;code&lt;/code&gt; in it.
   &lt;/body&gt;
 &lt;/html&gt;
 </pre>
@@ -243,7 +243,7 @@ END_DOKUWIKI
 <pre>
 &lt;html&gt;
   &lt;body&gt;
-    Here's some fake HTML with &lt;code class=&apos;codey&apos;&gt;code&lt;/code&gt; in it.
+    Here&apos;s some fake HTML with &lt;code class=&apos;codey&apos;&gt;code&lt;/code&gt; in it.
   &lt;/body&gt;
 &lt;/html&gt;
 </pre>

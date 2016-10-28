@@ -304,7 +304,7 @@ END_DOKUWIKI
 # XXX href?
 is_html_equal($dw->parse($text)->as_html, <<'END_HTML');
 <dl class='code'>
-<dt><a href=''>Test.java</a></dt>
+<dt><a href='...'>Test.java</a></dt>
 <dd>
 <pre class='java'>
 public static void main(String[] args) {
